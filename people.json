@@ -1,0 +1,31 @@
+[
+	{
+		"name": "Abraham Lincoln",
+		"corporation": "Republicans",
+		"known_from": "google"
+	},
+	{
+		"name": "Mother Teresa",
+		"known_from": "holy bible"
+	},
+	{
+		"name": "Gaston Lagaffe"
+	},
+	{
+		"name": "Luc Skywalker",
+		"known_from": "The Empire"
+	},
+	{
+		"name": "Spock",
+		"address": "USS Enterprise",
+		"corporation": "Starfleet"
+	},
+	{
+		"name": "Mickey Mouse",
+		"corporation": "Disney"
+	},
+	{
+		"name": "Marilyn Monroe",
+		"known_from": "Gentleman Prefer Blondes"
+	}
+]
