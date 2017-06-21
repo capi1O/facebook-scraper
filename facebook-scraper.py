@@ -16,7 +16,7 @@ fb_app_id = "xxxxxxxxxxxxxxx"
 
 def parse_arguments(sys_args):
 	try:
-		opts, args = getopt.getopt(sys_args, "hjc:v", ["help", "json=", "csv="])
+		opts, args = getopt.getopt(sys_args, "hjco:v", ["help", "json=", "csv=", "output="])
 	except getopt.GetoptError as err:
 		print(err) # will print something like "option -a not recognized"
 		usage()
@@ -24,6 +24,7 @@ def parse_arguments(sys_args):
 	input_file = False
 	input_type = ""
 	input_data = ""
+	output_type = "stdin"
 	verbose = False
 	for option, arg in opts:
 		if option in ("-h", "--help"):
@@ -38,16 +39,18 @@ def parse_arguments(sys_args):
 			input_file = True
 			input_type = "csv"
 			input_data = arg
+		elif option in ("-o", "--output"):
+			output_type = arg
 		elif option == "-v":
 			verbose = True
 		else:
-			assert False, "unhandled option"
+			assert False, "unhandled option : " + option
 	# if no JSON or CSV options provided, get non-option arguments if provided (names)
 	if input_file == False:
 		print "no file provided, reading all non-option arguments as strings"
 		input_type = "strings"
 		input_data = args
-	return [input_type, input_data]
+	return [input_type, input_data, output_type]
 
 def get_input_names(input_type, input_data):
 	input_names=[]
@@ -61,8 +64,10 @@ def get_input_names(input_type, input_data):
 		for person in people_json:
 			input_names.append(person['name'])
 	elif input_type == "csv":
-	    #TODO : loads CSV file
+		#TODO : loads CSV file
 		pass
+	else:
+		assert False, "unhandled input type : " + input_type
 	return input_names
 
 def get_fb_token():
@@ -94,7 +99,6 @@ def wait_for_fb_token(output_queue):
 	# ex : https://your-website.com/path/to/facebook-login.html?#access_token=access-token-here&expires_in=5558
 	parsed = urlparse.parse_qs(urlparse.urlparse(url).fragment)
 	user_token = parsed['access_token'][0]
-	# TODO : use try
 	if user_token:
 		# Close the window 
 		webview.destroy_window()
@@ -120,23 +124,37 @@ def test_fb_token(fb_user_token):
 def get_fb_users(fb_user_token, names=[]):
 	# Init facepy graph API
 	graph = GraphAPI(fb_user_token)
+	facebook_users = []
 	# Get Facebook users matching name(s) provided
 	for name in names:
 		encoded_name = name.encode('utf8')
 		print encoded_name
 		try:
 			result = graph.get('search?q={' + encoded_name + '}&type=user')
-			data = result['data'] #decode('utf8')
-			return data
+			facebook_users.append(result['data']) #decode('utf8')
 		except OAuthError as err:
 			print(err)
-			print "invalid token, after test : ", err
-			return None
+			print "invalid token for request of user " + name + ", error : ", err
+	return facebook_users
+
+def output_result(output_type, facebook_users):
+	if output_type == "stdin":
+		print json.dumps(facebook_users, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
+	elif output_type == "json":
+		# json_file_path = os.getcwd() + '/' + "output.json"
+		# print json_file_path
+		with open("output.json", 'w+') as output_file:
+			json.dump(facebook_users, output_file)
+	elif output_type == "csv":
+		#TODO : write to CSV file
+		pass
+	else:
+		assert False, "unhandled output type : " + output_type
 
 if __name__ == '__main__':
 
 	# 0. Parse Arguments
-	inputType, inputData = parse_arguments(sys.argv[1:])
+	inputType, inputData, outputType = parse_arguments(sys.argv[1:])
 		
 	# 1. Get input names (strings, JSON file or csv file)
 	inputNames = get_input_names(inputType, inputData)
@@ -155,7 +173,7 @@ if __name__ == '__main__':
 	fbUsers = get_fb_users(fbUserToken, inputNames)
 	
 	# 5 . Output result in desired format
-	print json.dumps(fbUsers, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
+	output_result(outputType, fbUsers)
 
 
 
