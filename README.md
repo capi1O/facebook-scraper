@@ -53,14 +53,27 @@ output :
 
 ### CSV
 
-`facebook-parser.py --csv=people.csv` or `facebook-parser.py -c=people.csv`
+`facebook-parser.py --csv=people.csv` or `facebook-parser.py -c people.csv`
 
 ### JSON
 
-`facebook-parser.py --json=people.json` or `facebook-parser.py -j=people.json`.
+`facebook-parser.py --json=people.json` or `facebook-parser.py -j people.json`
 
 See provided `people.json` example file.
 
+## specify output (console, JSON file or CSV file)
+
+### Console output
+
+`facebook-parser.py --output=stdin` or `facebook-parser.py -o stdin`
+
+### CSV
+
+`facebook-parser.py --output=csv` or `facebook-parser.py -o csv`
+
+### JSON
+
+`facebook-parser.py --output=json` or `facebook-parser.py -o json`
 
 # dependancies
 
@@ -68,7 +81,7 @@ See provided `people.json` example file.
 - [pywebview](https://github.com/r0x0r/pywebview) `pip install pywebview`
 
 
-# ressources
+# ressources used
 
 - https://stackoverflow.com/questions/43192556/using-jq-with-bash-to-run-command-for-each-object-in-array
 - https://stackoverflow.com/questions/31988171/facebook-graph-api-simple-search-for-users-by-name
@@ -85,8 +98,8 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/2967194/open-in-python-does-not-create-a-file-if-it-doesnt-exist
 - https://stackoverflow.com/questions/5627425/what-is-a-good-way-to-handle-exceptions-when-trying-to-read-a-file-in-python
 - https://stackoverflow.com/questions/6996603/how-to-delete-a-file-or-folder
-
-
+- https://www.codecademy.com/en/forum_questions/50ad6fa75a0341fd44001e34
+- https://stackoverflow.com/questions/12309269/how-do-i-write-json-data-to-a-file-in-python
 
 
 # code

@@ -16,7 +16,7 @@ fb_app_id = "xxxxxxxxxxxxxxx"
 
 def parse_arguments(sys_args):
 	try:
-		opts, args = getopt.getopt(sys_args, "hjco:v", ["help", "json=", "csv=", "output="])
+		opts, args = getopt.getopt(sys_args, "hj:c:o:v", ["help", "json=", "csv=", "output=", "verbose"])
 	except getopt.GetoptError as err:
 		print(err) # will print something like "option -a not recognized"
 		usage()
