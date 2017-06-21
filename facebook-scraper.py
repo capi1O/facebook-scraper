@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from facepy import GraphAPI
+from facepy import GraphAPI, OAuthError
 import json
 import getopt, sys
 import os
@@ -13,7 +13,7 @@ import pickle
 
 redirect_url = "https://your-website.com/path/to/facebook-login.html"
 fb_app_id = "xxxxxxxxxxxxxxx"
-		
+
 def get_input_names(options, arguments):
 	input_names=[]
 	input_file = False
@@ -57,7 +57,7 @@ def get_fb_token():
 				return saved_user_token
 			except EOFError:
 				print "No saved user token in file : ", fi
-	
+
 	# Launch a thread which will wait for the Facebook user token
 	wait_fb_token_queue = Queue.Queue()
 	wait_fb_token_thread = threading.Thread(target=wait_for_fb_token, args=[wait_fb_token_queue])
@@ -68,7 +68,7 @@ def get_fb_token():
 	# Wait for thread to return the token
 	wait_fb_token_thread.join()
 	return wait_fb_token_queue.get()
-		
+
 def wait_for_fb_token(output_queue):
 	while not webview.get_current_url().startswith(redirect_url):
 		time.sleep(1)
@@ -87,7 +87,18 @@ def wait_for_fb_token(output_queue):
 		output_queue.put(user_token)
 	else:
 		print "Error : could not get user token for Facebook Graph API"
-	
+
+def test_fb_token(fb_graph_api_user_token):
+	# Init facepy graph API
+	graph = GraphAPI(fb_graph_api_user_token)
+	# Make dummy request
+	try:
+		result = graph.get('me')
+		return True
+	except OAuthError as err:
+		print "invalid token : ", err
+		return False
+
 def get_fb_users(fb_graph_api_user_token, names=[]):
 	# Init facepy graph API
 	graph = GraphAPI(fb_graph_api_user_token)
@@ -95,12 +106,17 @@ def get_fb_users(fb_graph_api_user_token, names=[]):
 	for name in names:
 		encoded_name = name.encode('utf8')
 		print encoded_name
-		result = graph.get('search?q={' + encoded_name + '}&type=user')
-		data = result['data'] #decode('utf8')
-		print json.dumps(data, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
+		try:
+			result = graph.get('search?q={' + encoded_name + '}&type=user')
+			data = result['data'] #decode('utf8')
+			return data
+		except OAuthError as err:
+			print(err)
+			print "invalid token, after test : ", err
+			return None
 
 if __name__ == '__main__':
-	
+
 	# 0. Get input data (name, JSON file or csv file)
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], "hjc:v", ["help", "json=", "csv="])
@@ -113,7 +129,22 @@ if __name__ == '__main__':
 	input_names = get_input_names(opts, args)
 	
 	# 2 . Get authorization from user to Facebook Graph API
-	fb_user_token=get_fb_token()
+	fb_user_token = get_fb_token()
 	
-	# 3 . Scrap matching facebook users
-	get_fb_users(fb_user_token, input_names)
+	# 3 . Test Facebook User token
+	if not test_fb_token(fb_user_token):
+		print "Access Denied - Invalid token, try again"
+		# Remove saved token
+		os.remove('user_token.pk')
+		sys.exit(2)
+		
+	# 4 . Scrap matching facebook users
+	fb_users = get_fb_users(fb_user_token, input_names)
+	
+	# 3 . Output result in desired format
+	print json.dumps(fb_users, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
+
+
+
+
+

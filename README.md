@@ -82,6 +82,12 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/3221655/python-threading-string-arguments
 - https://stackoverflow.com/questions/31891286/keeping-the-data-of-a-variable-between-runs-of-code
 - https://www.daniweb.com/programming/software-development/threads/259751/function-returning-a-value-multi-thread
+- https://stackoverflow.com/questions/2967194/open-in-python-does-not-create-a-file-if-it-doesnt-exist
+- https://stackoverflow.com/questions/5627425/what-is-a-good-way-to-handle-exceptions-when-trying-to-read-a-file-in-python
+- https://stackoverflow.com/questions/6996603/how-to-delete-a-file-or-folder
+
+
+
 
 # code
 
