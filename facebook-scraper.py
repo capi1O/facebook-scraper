@@ -133,8 +133,11 @@ def get_fb_users(fb_user_token, verbose, names=[]):
 			fields = "name,id"
 			if verbose:
 				fields += ",picture,birthday,email,work,hometown"
-			result = graph.get('search?q={' + encoded_name + '}&type=user&fields=' + fields)
-			facebook_users.append(result['data']) #decode('utf8')
+			result_pages = graph.get('search?q={' + encoded_name + '}&type=user&fields=' + fields, True)
+			result_data = []
+			for result_page in result_pages:
+				result_data += result_page["data"]
+			facebook_users.append(result_data)
 		except OAuthError as err:
 			print(err)
 			print "invalid token for request of user " + name + ", error : ", err

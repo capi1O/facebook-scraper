@@ -100,7 +100,7 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/6996603/how-to-delete-a-file-or-folder
 - https://www.codecademy.com/en/forum_questions/50ad6fa75a0341fd44001e34
 - https://stackoverflow.com/questions/12309269/how-do-i-write-json-data-to-a-file-in-python
-
+- https://stackoverflow.com/questions/1720421/how-to-append-list-to-second-list-concatenate-lists
 
 # code
 
