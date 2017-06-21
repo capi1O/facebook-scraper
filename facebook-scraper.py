@@ -41,7 +41,7 @@ def parse_arguments(sys_args):
 			input_data = arg
 		elif option in ("-o", "--output"):
 			output_type = arg
-		elif option == "-v":
+		elif option in ("-v", "--verbose"):
 			verbose = True
 		else:
 			assert False, "unhandled option : " + option
@@ -50,7 +50,7 @@ def parse_arguments(sys_args):
 		print "no file provided, reading all non-option arguments as strings"
 		input_type = "strings"
 		input_data = args
-	return [input_type, input_data, output_type]
+	return [input_type, input_data, output_type, verbose]
 
 def get_input_names(input_type, input_data):
 	input_names=[]
@@ -121,7 +121,7 @@ def test_fb_token(fb_user_token):
 		print "invalid token : ", err
 		return False
 
-def get_fb_users(fb_user_token, names=[]):
+def get_fb_users(fb_user_token, verbose, names=[]):
 	# Init facepy graph API
 	graph = GraphAPI(fb_user_token)
 	facebook_users = []
@@ -130,7 +130,10 @@ def get_fb_users(fb_user_token, names=[]):
 		encoded_name = name.encode('utf8')
 		print encoded_name
 		try:
-			result = graph.get('search?q={' + encoded_name + '}&type=user')
+			fields = "name,id"
+			if verbose:
+				fields += ",picture,birthday,email,work,hometown"
+			result = graph.get('search?q={' + encoded_name + '}&type=user&fields=' + fields)
 			facebook_users.append(result['data']) #decode('utf8')
 		except OAuthError as err:
 			print(err)
@@ -154,7 +157,7 @@ def output_result(output_type, facebook_users):
 if __name__ == '__main__':
 
 	# 0. Parse Arguments
-	inputType, inputData, outputType = parse_arguments(sys.argv[1:])
+	inputType, inputData, outputType, verbose = parse_arguments(sys.argv[1:])
 		
 	# 1. Get input names (strings, JSON file or csv file)
 	inputNames = get_input_names(inputType, inputData)
@@ -170,7 +173,7 @@ if __name__ == '__main__':
 		sys.exit(2)
 		
 	# 4 . Scrap matching facebook users
-	fbUsers = get_fb_users(fbUserToken, inputNames)
+	fbUsers = get_fb_users(fbUserToken, verbose, inputNames)
 	
 	# 5 . Output result in desired format
 	output_result(outputType, fbUsers)
