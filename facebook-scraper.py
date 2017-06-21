@@ -14,49 +14,67 @@ import pickle
 redirect_url = "https://your-website.com/path/to/facebook-login.html"
 fb_app_id = "xxxxxxxxxxxxxxx"
 
-def get_input_names(options, arguments):
-	input_names=[]
+def parse_arguments(sys_args):
+	try:
+		opts, args = getopt.getopt(sys_args, "hjc:v", ["help", "json=", "csv="])
+	except getopt.GetoptError as err:
+		print(err) # will print something like "option -a not recognized"
+		usage()
+		sys.exit(2)
 	input_file = False
+	input_type = ""
+	input_data = ""
 	verbose = False
-	for option, arg in options:
+	for option, arg in opts:
 		if option in ("-h", "--help"):
 			print "help needed"
 		elif option in ("-j", "--json"):
 			print "JSON file provided"
 			input_file = True
-			# json_file_path = os.getcwd() + '/' + arg
-			# print json_file_path
-			with open(arg) as json_data:
-				people_json = json.load(json_data)
-			for person in people_json:
-				input_names.append(person['name'])
+			input_type = "json"
+			input_data = arg
 		elif option in ("-c", "--csv"):
 			print "CSV file provided"
 			input_file = True
-		    #TODO : loads CSV file 
+			input_type = "csv"
+			input_data = arg
 		elif option == "-v":
 			verbose = True
 		else:
 			assert False, "unhandled option"
 	# if no JSON or CSV options provided, get non-option arguments if provided (names)
 	if input_file == False:
-		print "no file provided, reading non-option arguments as names"
-		input_names=arguments
+		print "no file provided, reading all non-option arguments as strings"
+		input_type = "strings"
+		input_data = args
+	return [input_type, input_data]
+
+def get_input_names(input_type, input_data):
+	input_names=[]
+	if input_type == "strings":
+		input_names = input_data
+	elif input_type == "json":
+		# json_file_path = os.getcwd() + '/' + input_data
+		# print json_file_path
+		with open(input_data) as json_data:
+			people_json = json.load(json_data)
+		for person in people_json:
+			input_names.append(person['name'])
+	elif input_type == "csv":
+	    #TODO : loads CSV file
+		pass
 	return input_names
 
-# Get Facebook user access token (using Facebook app)
 def get_fb_token():
 	# Check if user token from previous session
 	token_file = 'user_token.pk'
 	if os.path.exists(token_file):
 		with open(token_file, 'rb') as fi:
 			try:
-				saved_user_token = pickle.load(fi)
-				print saved_user_token
-				#TODO : check if it is still valid.
-				return saved_user_token
+				saved_fb_user_token = pickle.load(fi)
+				return saved_fb_user_token
 			except EOFError:
-				print "No saved user token in file : ", fi
+				print "No saved Facebook user token in file : ", fi
 
 	# Launch a thread which will wait for the Facebook user token
 	wait_fb_token_queue = Queue.Queue()
@@ -88,9 +106,9 @@ def wait_for_fb_token(output_queue):
 	else:
 		print "Error : could not get user token for Facebook Graph API"
 
-def test_fb_token(fb_graph_api_user_token):
+def test_fb_token(fb_user_token):
 	# Init facepy graph API
-	graph = GraphAPI(fb_graph_api_user_token)
+	graph = GraphAPI(fb_user_token)
 	# Make dummy request
 	try:
 		result = graph.get('me')
@@ -99,9 +117,9 @@ def test_fb_token(fb_graph_api_user_token):
 		print "invalid token : ", err
 		return False
 
-def get_fb_users(fb_graph_api_user_token, names=[]):
+def get_fb_users(fb_user_token, names=[]):
 	# Init facepy graph API
-	graph = GraphAPI(fb_graph_api_user_token)
+	graph = GraphAPI(fb_user_token)
 	# Get Facebook users matching name(s) provided
 	for name in names:
 		encoded_name = name.encode('utf8')
@@ -117,32 +135,27 @@ def get_fb_users(fb_graph_api_user_token, names=[]):
 
 if __name__ == '__main__':
 
-	# 0. Get input data (name, JSON file or csv file)
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hjc:v", ["help", "json=", "csv="])
-	except getopt.GetoptError as err:
-		print(err) # will print something like "option -a not recognized"
-		usage()
-		sys.exit(2)
+	# 0. Parse Arguments
+	inputType, inputData = parse_arguments(sys.argv[1:])
 		
-	# 1 . Get input names
-	input_names = get_input_names(opts, args)
+	# 1. Get input names (strings, JSON file or csv file)
+	inputNames = get_input_names(inputType, inputData)
 	
 	# 2 . Get authorization from user to Facebook Graph API
-	fb_user_token = get_fb_token()
+	fbUserToken = get_fb_token()
 	
 	# 3 . Test Facebook User token
-	if not test_fb_token(fb_user_token):
+	if not test_fb_token(fbUserToken):
 		print "Access Denied - Invalid token, try again"
 		# Remove saved token
 		os.remove('user_token.pk')
 		sys.exit(2)
 		
 	# 4 . Scrap matching facebook users
-	fb_users = get_fb_users(fb_user_token, input_names)
+	fbUsers = get_fb_users(fbUserToken, inputNames)
 	
-	# 3 . Output result in desired format
-	print json.dumps(fb_users, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
+	# 5 . Output result in desired format
+	print json.dumps(fbUsers, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
 
 
 
