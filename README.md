@@ -6,17 +6,20 @@ When targeting multiple people it can be useful to quickly get some data about t
 
 # Use
 
-Facebook access token is required. A quick way to get one : 
+## Facebook App setup
 
-- Go to the [Graph API Explorer](https://developers.facebook.com/tools/explorer)
-- Click on the Get Token button in the top right of the Explorer.
-- Choose the option Get User Access Token.
-- In the following dialog don't check any boxes, just click the blue Get Access Token button.
-- You'll see a Facebook Login Dialog, click OK to proceed.
+Facebook user access token is required to search users through the Graph API.
+A Facebook app is necessary to send this token to **facebook-scraper**, thus a Facebook app needs to be created so this script can retrieve the user token.
 
-source : https://developers.facebook.com/docs/graph-api/overview/
+- Upload the content of the directory webpage to a web server.
+- Go to the [Facebook dev website](https://developers.facebook.com/apps/)
+- Click "My Apps" drop-down then "Add a New App".
+- Click add platform and select "web", fill "Site URL" with the address of the web page you have uploaded : https://your-website.com/path/to/facebook-login.html
+- Fill the field "App Domains" with the base URL of this web page : https://your-website.com
+- Copy the Facebook app ID and set the value of `fb_app_id` in facebook-scraper.py.
+- Set the value of `redirect_url` in facebook-scraper.py : https://your-website.com/path/to/facebook-login.html
 
-
+You will be prompted to grant access to this Facebook app once running the script. 
 
 ## provide list of names as non-option arguments (one or more)
 	
@@ -62,6 +65,7 @@ See provided `people.json` example file.
 # dependancies
 
 - [facepy](https://github.com/jgorset/facepy) `pip instal facepy`
+- [pywebview](https://github.com/r0x0r/pywebview) `pip install pywebview`
 
 
 # ressources
@@ -73,6 +77,11 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/20199126/reading-json-from-a-file
 - https://stackoverflow.com/questions/1695183/how-to-percent-encode-url-parameters-in-python
 - https://stackoverflow.com/questions/4184108/python-json-dumps-cant-handle-utf-8
+- https://stackoverflow.com/questions/21310648/facebook-app-this-must-be-derived-from-canvas-url-secure-canvas-url
+- https://stackoverflow.com/questions/8802860/checking-whether-a-string-starts-with-xxxx
+- https://stackoverflow.com/questions/3221655/python-threading-string-arguments
+- https://stackoverflow.com/questions/31891286/keeping-the-data-of-a-variable-between-runs-of-code
+- https://www.daniweb.com/programming/software-development/threads/259751/function-returning-a-value-multi-thread
 
 # code
 
