@@ -104,6 +104,8 @@ See provided `people.json` example file.
 - https://github.com/r0x0r/pywebview/issues/46
 - https://stackoverflow.com/questions/2785821/is-there-an-easy-way-in-python-to-wait-until-certain-condition-is-true
 - https://stackoverflow.com/questions/3605188/communicating-end-of-queue
+- https://stackoverflow.com/questions/15652427/variable-or-variable-is-not-none
+- https://pymotw.com/2/getopt/
 
 # code
 

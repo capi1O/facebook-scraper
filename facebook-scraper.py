@@ -16,43 +16,43 @@ fb_app_id = "xxxxxxxxxxxxxxx"
 
 def parse_arguments(sys_args):
 	try:
-		opts, args = getopt.getopt(sys_args, "hj:c:o:v", ["help", "json=", "csv=", "output=", "verbose"])
+		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hj:c:o:v", ["help", "json=", "csv=", "output=", "verbose"])
+		input_file = False
+		input_type = ""
+		input_data = ""
+		output_type = "stdin"
+		verbose = False
+		for option, arg in opts:
+			if option in ("-h", "--help"):
+				print "help needed"
+			elif option in ("-j", "--json"):
+				print "JSON file provided"
+				input_file = True
+				input_type = "json"
+				input_data = arg
+			elif option in ("-c", "--csv"):
+				print "CSV file provided"
+				input_file = True
+				input_type = "csv"
+				input_data = arg
+			elif option in ("-o", "--output"):
+				output_type = arg
+			elif option in ("-v", "--verbose"):
+				verbose = True
+			else:
+				assert False, "unhandled option : " + option
+		# if no JSON or CSV options provided, get non-option arguments if provided (names)
+		if input_file == False:
+			print "no file provided, reading all non-option arguments as strings : '" + ", ".join(map(str, non_opts_args)) + "'"
+			input_type = "strings"
+			input_data = non_opts_args
+		return [input_type, input_data, output_type, verbose]
 	except getopt.GetoptError as err:
-		print(err) # will print something like "option -a not recognized"
+		print(err)
 		usage()
 		sys.exit(2)
-	input_file = False
-	input_type = ""
-	input_data = ""
-	output_type = "stdin"
-	verbose = False
-	for option, arg in opts:
-		if option in ("-h", "--help"):
-			print "help needed"
-		elif option in ("-j", "--json"):
-			print "JSON file provided"
-			input_file = True
-			input_type = "json"
-			input_data = arg
-		elif option in ("-c", "--csv"):
-			print "CSV file provided"
-			input_file = True
-			input_type = "csv"
-			input_data = arg
-		elif option in ("-o", "--output"):
-			output_type = arg
-		elif option in ("-v", "--verbose"):
-			verbose = True
-		else:
-			assert False, "unhandled option : " + option
-	# if no JSON or CSV options provided, get non-option arguments if provided (names)
-	if input_file == False:
-		print "no file provided, reading all non-option arguments as strings"
-		input_type = "strings"
-		input_data = args
-	return [input_type, input_data, output_type, verbose]
 
-def get_input_names(input_type, input_data):
+def get_input_names(input_type, input_data = []):
 	input_names=[]
 	if input_type == "strings":
 		input_names = input_data
