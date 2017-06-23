@@ -93,33 +93,49 @@ def get_fb_token():
 	return wait_fb_token_queue.get()
 
 def wait_for_fb_token(output_queue):
-	while not webview.get_current_url().startswith(redirect_url):
-		time.sleep(1)
+	authorization_success = wait_until(webview.get_current_url().startswith(redirect_url), 10)
 	url = webview.get_current_url()
-	# ex : https://your-website.com/path/to/facebook-login.html?#access_token=access-token-here&expires_in=5558
-	parsed = urlparse.parse_qs(urlparse.urlparse(url).fragment)
-	user_token = parsed['access_token'][0]
-	if user_token:
-		# Close the window 
-		webview.destroy_window()
-		# Save user token for future sessions
-		token_file = 'user_token.pk'
-		with open(token_file, 'wb+') as fi:
-			pickle.dump(user_token, fi)
-		output_queue.put(user_token)
+	webview.destroy_window()
+	if authorization_success:
+		# ex : https://your-website.com/path/to/facebook-login.html?#access_token=access-token-here&expires_in=5558
+		parsed = urlparse.parse_qs(urlparse.urlparse(url).fragment)
+		user_token = parsed['access_token'][0]
+		if user_token:
+			# Save user token for future sessions
+			token_file = 'user_token.pk'
+			with open(token_file, 'wb+') as fi:
+				pickle.dump(user_token, fi)
+			output_queue.put(user_token)
+		else:
+			print "Error : could not get user token for Facebook Graph API"
+			output_queue.put(None)
 	else:
-		print "Error : could not get user token for Facebook Graph API"
+		print "Error : could not get authorization for Facebook Graph API"
+		output_queue.put(None)
 
-def test_fb_token(fb_user_token):
-	# Init facepy graph API
-	graph = GraphAPI(fb_user_token)
-	# Make dummy request
-	try:
-		result = graph.get('me')
-		return True
-	except OAuthError as err:
-		print "invalid token : ", err
+def wait_until(somepredicate, timeout, period=0.25):
+	mustend = time.time() + timeout
+	while time.time() < mustend:
+		if somepredicate:
+			return True
+		time.sleep(period)
+	return False
+	
+def fb_token_valid(fb_user_token):
+	if fb_user_token and fb_user_token is not None:
+		# Init facepy graph API
+		graph = GraphAPI(fb_user_token)
+		# Make dummy request
+		try:
+			result = graph.get('me')
+			return True
+		except OAuthError as err:
+			print "Error : invalid user token for Facebook Graph API : ", err
+			return False
+	else:
+		print "Error : no user token for Facebook Graph API"
 		return False
+
 
 def get_fb_users(fb_user_token, verbose, names=[]):
 	# Init facepy graph API
@@ -130,9 +146,9 @@ def get_fb_users(fb_user_token, verbose, names=[]):
 		encoded_name = name.encode('utf8')
 		print encoded_name
 		try:
-			fields = "name,id"
+			fields = "name,link"
 			if verbose:
-				fields += ",picture,birthday,email,work,hometown"
+				fields += "name,picture,link,birthday,email,work,hometown"
 			result_pages = graph.get('search?q={' + encoded_name + '}&type=user&fields=' + fields, True)
 			result_data = []
 			for result_page in result_pages:
@@ -169,7 +185,7 @@ if __name__ == '__main__':
 	fbUserToken = get_fb_token()
 	
 	# 3 . Test Facebook User token
-	if not test_fb_token(fbUserToken):
+	if fb_token_valid(fbUserToken):
 		print "Access Denied - Invalid token, try again"
 		# Remove saved token
 		os.remove('user_token.pk')
