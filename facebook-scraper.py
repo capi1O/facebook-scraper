@@ -93,7 +93,7 @@ def get_fb_token():
 	return wait_fb_token_queue.get()
 
 def wait_for_fb_token(output_queue):
-	authorization_success = wait_until(lambda current_url: current_url.startswith(redirect_url), 10) #webview.get_current_url().startswith(redirect_url)
+	authorization_success = wait_until(lambda : webview.get_current_url().startswith(redirect_url), 10)
 	url = webview.get_current_url()
 	webview.destroy_window()
 	if sys.platform == 'darwin':
@@ -119,11 +119,11 @@ def wait_for_fb_token(output_queue):
 def wait_until(condition, timeout, period=0.25):
 	mustend = time.time() + timeout
 	while time.time() < mustend:
-		if condition(webview.get_current_url()):
+		if condition():
 			return True
 		time.sleep(period)
 	return False
-	
+
 def fb_token_valid(fb_user_token):
 	if fb_user_token and fb_user_token is not None:
 		# Init facepy graph API
