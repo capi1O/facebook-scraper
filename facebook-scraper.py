@@ -43,7 +43,7 @@ def parse_arguments(sys_args):
 				assert False, "unhandled option : " + option
 		# if no JSON or CSV options provided, get non-option arguments if provided (names)
 		if input_file == False:
-			print "no file provided, reading all non-option arguments as strings : '" + ", ".join(map(str, non_opts_args)) + "'"
+			print "no input file provided, reading all non-option arguments as strings : '" + ", ".join(map(str, non_opts_args)) + "'"
 			input_type = "strings"
 			input_data = non_opts_args
 		return [input_type, input_data, output_type, verbose]
@@ -93,7 +93,7 @@ def get_fb_token():
 	return wait_fb_token_queue.get()
 
 def wait_for_fb_token(output_queue):
-	authorization_success = wait_until(webview.get_current_url().startswith(redirect_url), 10)
+	authorization_success = wait_until(lambda current_url: current_url.startswith(redirect_url), 10) #webview.get_current_url().startswith(redirect_url)
 	url = webview.get_current_url()
 	webview.destroy_window()
 	if authorization_success:
@@ -113,10 +113,10 @@ def wait_for_fb_token(output_queue):
 		print "Error : could not get authorization for Facebook Graph API"
 		output_queue.put(None)
 
-def wait_until(somepredicate, timeout, period=0.25):
+def wait_until(condition, timeout, period=0.25):
 	mustend = time.time() + timeout
 	while time.time() < mustend:
-		if somepredicate:
+		if condition(webview.get_current_url()):
 			return True
 		time.sleep(period)
 	return False
@@ -146,9 +146,9 @@ def get_fb_users(fb_user_token, verbose, names=[]):
 		encoded_name = name.encode('utf8')
 		print encoded_name
 		try:
-			fields = "name,link"
+			fields = "name,link,picture"
 			if verbose:
-				fields += "name,picture,link,birthday,email,work,hometown"
+				fields += ",birthday,email,work,hometown"
 			result_pages = graph.get('search?q={' + encoded_name + '}&type=user&fields=' + fields, True)
 			result_data = []
 			for result_page in result_pages:
@@ -185,10 +185,13 @@ if __name__ == '__main__':
 	fbUserToken = get_fb_token()
 	
 	# 3 . Test Facebook User token
-	if fb_token_valid(fbUserToken):
+	if not fb_token_valid(fbUserToken):
 		print "Access Denied - Invalid token, try again"
-		# Remove saved token
-		os.remove('user_token.pk')
+		# Remove saved token if any
+		try:
+			os.remove('user_token.pk')
+		except OSError:
+			pass
 		sys.exit(2)
 		
 	# 4 . Scrap matching facebook users

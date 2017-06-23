@@ -61,7 +61,7 @@ output :
 
 See provided `people.json` example file.
 
-## specify output (console, JSON file or CSV file)
+## specify output format (console, JSON file or CSV file)
 
 ### Console output
 
@@ -74,6 +74,11 @@ See provided `people.json` example file.
 ### JSON
 
 `facebook-parser.py --output=json` or `facebook-parser.py -o json`
+
+## specify data
+
+`facebook-parser.py --verbose` or `facebook-parser.py -v` outputs all data fetchable through Facebook Graph API (by default it only outputs name, picture and Facebook ID).
+
 
 # dependancies
 
@@ -106,6 +111,7 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/3605188/communicating-end-of-queue
 - https://stackoverflow.com/questions/15652427/variable-or-variable-is-not-none
 - https://pymotw.com/2/getopt/
+- https://stackoverflow.com/questions/6665082/how-to-pass-an-if-statement-to-a-python-method
 
 # code
 
