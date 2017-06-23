@@ -13,6 +13,7 @@ import pickle
 
 redirect_url = "https://your-website.com/path/to/facebook-login.html"
 fb_app_id = "xxxxxxxxxxxxxxx"
+window_closed = True
 
 def parse_arguments(sys_args):
 	try:
@@ -71,6 +72,7 @@ def get_input_names(input_type, input_data = []):
 	return input_names
 
 def get_fb_token():
+	global window_closed
 	# Check if user token from previous session
 	token_file = 'user_token.pk'
 	if os.path.exists(token_file):
@@ -82,48 +84,60 @@ def get_fb_token():
 				print "No saved Facebook user token in file : ", fi
 
 	# Launch a thread which will wait for the Facebook user token
+	window_closed = False
 	wait_fb_token_queue = Queue.Queue()
 	wait_fb_token_thread = threading.Thread(target=wait_for_fb_token, args=[wait_fb_token_queue])
 	wait_fb_token_thread.start()
 	# Ask user for new token and wait for authorization success
 	auth_url = "https://www.facebook.com/dialog/oauth?response_type=token&client_id=" + fb_app_id + "&redirect_uri=" + redirect_url
-	webview.create_window("Authorization request", auth_url)
-	# Wait for thread to return the token
+	webview.create_window("Authorization request", auth_url) # block until window is closed
+	print "window was closed"
+	window_closed = True
+	# Get result from wait_fb_token_thread
 	wait_fb_token_thread.join()
 	return wait_fb_token_queue.get()
 
 def wait_for_fb_token(output_queue):
-	authorization_success = wait_until(lambda : webview.get_current_url().startswith(redirect_url), 10)
-	url = webview.get_current_url()
-	webview.destroy_window()
-	if sys.platform == 'darwin':
-		from util_cocoa import mouseMoveRelative
-		mouseMoveRelative(1, 1)
-	if authorization_success:
-		# ex : https://your-website.com/path/to/facebook-login.html?#access_token=access-token-here&expires_in=5558
-		parsed = urlparse.parse_qs(urlparse.urlparse(url).fragment)
-		user_token = parsed['access_token'][0]
-		if user_token:
-			# Save user token for future sessions
-			token_file = 'user_token.pk'
-			with open(token_file, 'wb+') as fi:
-				pickle.dump(user_token, fi)
-			output_queue.put(user_token)
-		else:
-			print "Error : could not get user token for Facebook Graph API"
-			output_queue.put(None)
-	else:
-		print "Error : could not get authorization for Facebook Graph API"
-		output_queue.put(None)
+	authorization_success = wait_until(lambda : webview.get_current_url().startswith(redirect_url), lambda : window_closed is True, 10)
 
-def wait_until(condition, timeout, period=0.25):
+	if authorization_success is None:
+		print "Error : window closed before authorization for Facebook Graph API"
+		output_queue.put(None)
+	else:
+		if authorization_success:
+			url = webview.get_current_url()
+			# ex : https://your-website.com/path/to/facebook-login.html?#access_token=access-token-here&expires_in=5558
+			parsed = urlparse.parse_qs(urlparse.urlparse(url).fragment)
+			user_token = parsed['access_token'][0]
+			if user_token:
+				# Save user token for future sessions
+				token_file = 'user_token.pk'
+				with open(token_file, 'wb+') as fi:
+					pickle.dump(user_token, fi)
+				output_queue.put(user_token)
+			else:
+				print "Error : could not get user token for Facebook Graph API"
+				output_queue.put(None)
+		else:
+			print "Error : could not get authorization for Facebook Graph API"
+			output_queue.put(None)
+		# Close the window
+		webview.destroy_window()
+		if sys.platform == 'darwin':
+			from util_cocoa import mouseMoveRelative
+			mouseMoveRelative(1, 1)
+
+def wait_until(success_condition, stop_condition, timeout, period=0.25):
 	mustend = time.time() + timeout
-	while time.time() < mustend:
-		if condition():
+	while time.time() < mustend and not stop_condition():
+		if success_condition():
 			return True
 		time.sleep(period)
-	return False
-
+	if stop_condition():
+		return None
+	else:
+		return False
+	
 def fb_token_valid(fb_user_token):
 	if fb_user_token and fb_user_token is not None:
 		# Init facepy graph API
