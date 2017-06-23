@@ -113,6 +113,8 @@ See provided `people.json` example file.
 - https://pymotw.com/2/getopt/
 - https://stackoverflow.com/questions/6665082/how-to-pass-an-if-statement-to-a-python-method
 - https://github.com/r0x0r/pywebview/blob/c5ff4e136202e1687664518f8de9893f63915f51/tests/util.py
+- https://stackoverflow.com/questions/10840533/most-pythonic-way-to-delete-a-file-which-may-not-exist
+- https://stackoverflow.com/questions/6665082/how-to-pass-an-if-statement-to-a-python-method
 
 # code
 
