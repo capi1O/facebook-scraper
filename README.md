@@ -79,7 +79,7 @@ See provided `people.json` example file.
 
 - [facepy](https://github.com/jgorset/facepy) `pip instal facepy`
 - [pywebview](https://github.com/r0x0r/pywebview) `pip install pywebview`
-
+	- pywebview dependancies : `pythonnet` or `pywin32` and `comtypes` on windows, `pyobjc` on macOS, `PyGObject` on Debian linux or `PyQt4/5` on QT linux.
 
 # ressources used
 
@@ -101,9 +101,11 @@ See provided `people.json` example file.
 - https://www.codecademy.com/en/forum_questions/50ad6fa75a0341fd44001e34
 - https://stackoverflow.com/questions/12309269/how-do-i-write-json-data-to-a-file-in-python
 - https://stackoverflow.com/questions/1720421/how-to-append-list-to-second-list-concatenate-lists
+- https://github.com/r0x0r/pywebview/issues/46
+- https://stackoverflow.com/questions/2785821/is-there-an-easy-way-in-python-to-wait-until-certain-condition-is-true
+- https://stackoverflow.com/questions/3605188/communicating-end-of-queue
 
 # code
-
 
 ## contributing
 
