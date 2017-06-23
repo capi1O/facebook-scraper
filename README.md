@@ -112,6 +112,7 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/15652427/variable-or-variable-is-not-none
 - https://pymotw.com/2/getopt/
 - https://stackoverflow.com/questions/6665082/how-to-pass-an-if-statement-to-a-python-method
+- https://github.com/r0x0r/pywebview/blob/c5ff4e136202e1687664518f8de9893f63915f51/tests/util.py
 
 # code
 

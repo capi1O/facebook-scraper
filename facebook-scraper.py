@@ -96,6 +96,9 @@ def wait_for_fb_token(output_queue):
 	authorization_success = wait_until(lambda current_url: current_url.startswith(redirect_url), 10) #webview.get_current_url().startswith(redirect_url)
 	url = webview.get_current_url()
 	webview.destroy_window()
+	if sys.platform == 'darwin':
+		from util_cocoa import mouseMoveRelative
+		mouseMoveRelative(1, 1)
 	if authorization_success:
 		# ex : https://your-website.com/path/to/facebook-login.html?#access_token=access-token-here&expires_in=5558
 		parsed = urlparse.parse_qs(urlparse.urlparse(url).fragment)
