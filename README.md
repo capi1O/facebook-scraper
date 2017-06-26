@@ -2,7 +2,7 @@
 
 # why
 
-When targeting multiple people it can be useful to quickly get some data about them from Facebook, most notably the Facebook ID can be used to send an email to a Facebook user (facebook_ID@facebook.com) which will appear as a regular Facebook message to this user (see http://smallbusiness.chron.com/email-address-facebook-id-53471.html).
+When targeting multiple people it can be useful to quickly get some data about them from Facebook, most notably the Facebook UID which could be used to send an email to a Facebook user via facebook_ID@facebook.com (see http://smallbusiness.chron.com/email-address-facebook-id-53471.html or https://www.matthewbarby.com/emailing-facebook-followers/). It is now deprecated but the Facebook UID is still useful for many plugins or mass marketing tools.
 
 # Use
 
@@ -30,20 +30,32 @@ output :
 ```
 [
 	{
-		"id": "109571456326532",
-		"name": "Doe John"
+		"fb_uid": "100015863894359",
+		"id": "170757540129708",
+		"link": "https://www.facebook.com/app_scoped_user_id/170757540129708/",
+		"name": "John Doe",
+		"picture":
+		{
+			"data":
+			{
+				"is_silhouette": true,
+				"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/1379841_10150004552801901_469209496895221757_n.jpg?oh=dfb4abddad51f4b8b7220d2e84b5e7f0&oe=59C9DF33"
+			}
+		}
 	},
 	{
-		"id": "140568483146921",
-		"name": "Doe John"
-	},
-	{
-		"id": "276266322840319",
-		"name": "Jonathan Doe"
-	},
-	{
-		"id": "1646054118943956",
-		"name": "John Pazdan"
+		"fb_uid": "100015477139452",
+		"id": "198233757369194",
+		"link": "https://www.facebook.com/app_scoped_user_id/198233757369194/",
+		"name": "John Doe",
+		"picture":
+		{
+			"data":
+			{
+				"is_silhouette": true,
+				"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?oh=726660dce6ba9660584686ee99a62deb&oe=59D7152F"
+			}
+		}
 	},
 	...
 ]
@@ -82,9 +94,10 @@ See provided `people.json` example file.
 
 # dependancies
 
-- [facepy](https://github.com/jgorset/facepy) `pip instal facepy`
+- [facepy](https://github.com/jgorset/facepy) `pip install facepy`
 - [pywebview](https://github.com/r0x0r/pywebview) `pip install pywebview`
 	- pywebview dependancies : `pythonnet` or `pywin32` and `comtypes` on windows, `pyobjc` on macOS, `PyGObject` on Debian linux or `PyQt4/5` on QT linux.
+- [robobrowser](https://github.com/jmcarp/robobrowser) `pip install robobrowser`
 
 # ressources used
 
@@ -117,6 +130,10 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/6665082/how-to-pass-an-if-statement-to-a-python-method
 - https://github.com/r0x0r/pywebview/issues/58
 - https://stackoverflow.com/questions/19790570/python-global-variable-with-thread
+- https://stackoverflow.com/questions/20475552/python-requests-library-redirect-new-url/20475712#20475712
+- https://stackoverflow.com/questions/21928368/login-to-facebook-using-python-requests
+- https://stackoverflow.com/questions/28560092/download-images-and-pdf-using-python-robobrowser
+- https://stackoverflow.com/questions/24300309/get-facebook-profile-url-from-app-scoped-user-id
 
 # code
 
