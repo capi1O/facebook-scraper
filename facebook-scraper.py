@@ -10,6 +10,7 @@ import Queue
 import time
 import urlparse
 import pickle
+import robobrowser
 
 redirect_url = "https://your-website.com/path/to/facebook-login.html"
 fb_app_id = "xxxxxxxxxxxxxxx"
@@ -108,14 +109,18 @@ def wait_for_fb_token(output_queue):
 			url = webview.get_current_url()
 			# ex : https://your-website.com/path/to/facebook-login.html?#access_token=access-token-here&expires_in=5558
 			parsed = urlparse.parse_qs(urlparse.urlparse(url).fragment)
-			user_token = parsed['access_token'][0]
-			if user_token:
-				# Save user token for future sessions
-				token_file = 'user_token.pk'
-				with open(token_file, 'wb+') as fi:
-					pickle.dump(user_token, fi)
-				output_queue.put(user_token)
-			else:
+			try:
+				user_token = parsed['access_token'][0]
+				if user_token:
+					# Save user token for future sessions
+					token_file = 'user_token.pk'
+					with open(token_file, 'wb+') as fi:
+						pickle.dump(user_token, fi)
+					output_queue.put(user_token)
+				else:
+					print "Error : could not get user token for Facebook Graph API"
+					output_queue.put(None)
+			except KeyError:
 				print "Error : could not get user token for Facebook Graph API"
 				output_queue.put(None)
 		else:
@@ -174,7 +179,50 @@ def get_fb_users(fb_user_token, verbose, names=[]):
 		except OAuthError as err:
 			print(err)
 			print "invalid token for request of user " + name + ", error : ", err
-	return facebook_users
+	return facebook_users[0]
+	
+def fb_logged_browser(fb_email, fb_password):
+	url = 'https://m.facebook.com'
+	browser = robobrowser.RoboBrowser()
+	browser.open(url)
+	login_form = browser.get_form(id='login_form')
+	login_form['email'] = fb_email
+	login_form['pass'] = fb_password
+	browser.submit_form(login_form)
+	return browser
+
+def get_fb_uid(fb_user_data, browser):
+	# 1. Try to follow link (need to be logged in)
+	fb_user_profile_url = fb_user_data["link"]
+	response = browser.session.get(fb_user_profile_url, stream=True)
+	# 2. Check if link could be followed
+	if "app_scoped_user_id" in response.url:
+		print "Reached Graph API request limit"
+		return None
+	# 3. Check if final URL is Customized Profile URL (https://www.facebook.com/custom.user.name) or Non-customized Profile URL (https://www.facebook.com/profile.php?id=xxxxxxxxxxxxxxx)
+	# Non-customized Profile URL, must parse the webpage
+	if "profile.php?id=" in response.url:
+		parsed = urlparse.parse_qs(urlparse.urlparse(response.url).query)
+		try:
+			fb_uid = parsed['id'][0]
+			return fb_uid
+		except KeyError:
+			print "Error : could not get UID from non-customized Profile URL"
+			return None
+	# Customized Profile URL, must parse the webpage
+	else:
+		# TODO : Analyse browser.parsed
+		return None
+
+def add_field_to_users(fb_users, key, lambda_value):
+	updated_fb_users = []
+	for fb_user_data in fb_users:
+		fb_uid = lambda_value(fb_user_data)
+		if fb_uid and fb_uid is not None:
+			fb_uid_dict = {key: fb_uid}
+			fb_user_data.update(fb_uid_dict)
+			updated_fb_users.append(fb_user_data)
+	return updated_fb_users
 
 def output_result(output_type, facebook_users):
 	if output_type == "stdin":
@@ -210,11 +258,15 @@ if __name__ == '__main__':
 		except OSError:
 			pass
 		sys.exit(2)
-		
+	
 	# 4 . Scrap matching facebook users
 	fbUsers = get_fb_users(fbUserToken, verbose, inputNames)
 	
-	# 5 . Output result in desired format
+	# 5. Get the FB id for each user by following the link from Graph API in a logged browser
+	fbLoggedBrowser = fb_logged_browser("your.email@example.com", "xxxxxxxx")
+	fbUsers = add_field_to_users(fbUsers, "fb_uid", lambda user : get_fb_uid(user, fbLoggedBrowser))
+	
+	# 6 . Output result in desired format
 	output_result(outputType, fbUsers)
 
 
