@@ -8,26 +8,49 @@ When targeting multiple people it can be useful to quickly get some data about t
 
 ## provide list of names as non-option arguments (one or more)
 	
-`facebook-parser.py "John Doe"`
+`facebook-parser.py "John Doe" "John Smith"`
 	
 output :
 
 ```
 [
 	{
-		"fb_uid": "100015863894359",
-		"link": "https://www.facebook.com/170757540129708/",
-		"name": "John Doe",
-		"picture_url": "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/1379841_10150004552801901_469209496895221757_n.jpg?oh=dfb4abddad51f4b8b7220d2e84b5e7f0&oe=59C9DF33"
+	"searched_user": "John Doe",
+	"matching_users_attributes": 
+		[
+			{
+				"fb_customized_url": "JohnJohn.Doe",
+				"fb_name": "John-john Doe",
+				"fb_uid": "100000016191070",
+				"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c0.13.64.64/p64x64/1920462_779525028724696_446426524_n.jpg?efg=eyJpIjoibCJ9&oh=f0ae9a0e5e743da1c1326144343da3f8&oe=59E1F6F1"
+			},
+			{
+				"fb_customized_url": "johndoe.escobar",
+				"fb_name": "John-Doe Escobar",
+				"fb_uid": "1125608844",
+				"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/18447291_10211252162596279_5275418469254673155_n.jpg?efg=eyJpIjoibCJ9&oh=96fa5cbde90a96c2f8abddb8ae922e88&oe=59E1984E"
+			},
+			...
+		]
 	},
 	{
-		"fb_uid": "100015477139452",
-		"id": "198233757369194",
-		"link": "https://www.facebook.com/198233757369194/",
-		"name": "John Doe",
-		"picture_url": "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?oh=726660dce6ba9660584686ee99a62deb&oe=59D7152F"
-	},
-	...
+	"searched_user": "John Smith",
+	"matching_users_attributes": 
+		[
+			{
+				"fb_name": "John Smith",
+				"fb_uid": "674345013",
+				"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/15697334_10158029528495014_4623996019099638763_n.jpg?efg=eyJpIjoibCJ9&oh=3002b1557ce4961f8afec030ef289435&oe=59E3CAEB"
+			},
+			{
+				"fb_customized_url": "UBetterfollowSmith",
+				"fb_name": "John Smith",
+				"fb_uid": "692792352",
+				"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/17457642_10154255617277353_8169698937347482715_n.jpg?efg=eyJpIjoibCJ9&oh=b8e9e91fb4a6719991e13b74afde5845&oe=59CBBD3F"
+			},
+			...
+		]
+	}
 ]
 ```
 
@@ -106,6 +129,17 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/21928368/login-to-facebook-using-python-requests
 - https://stackoverflow.com/questions/28560092/download-images-and-pdf-using-python-robobrowser
 - https://stackoverflow.com/questions/24300309/get-facebook-profile-url-from-app-scoped-user-id
+- https://stackoverflow.com/questions/5214578/python-print-string-to-text-file
+- https://stackoverflow.com/questions/5099193/using-beautifulsoup-to-find-all-elements-starting-with-a-given-letter
+- https://stackoverflow.com/questions/6109882/regex-match-all-characters-between-two-strings
+- https://regex101.com/
+- https://stackoverflow.com/questions/41620093/whats-the-difference-between-re-dotall-and-re-multiline
+- https://stackoverflow.com/questions/180986/what-is-the-difference-between-pythons-re-search-and-re-match
+- https://docs.python.org/2/howto/regex.html#grouping
+- https://stackoverflow.com/questions/13202087/beautiful-soup-find-children-for-particular-div
+- https://stackoverflow.com/questions/5015483/test-if-an-attribute-is-present-in-a-tag-in-beautifulsoup
+- https://stackoverflow.com/questions/1592565/determine-if-variable-is-defined-in-python
+- https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary
 
 # code
 

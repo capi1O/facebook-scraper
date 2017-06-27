@@ -10,6 +10,7 @@ import urlparse
 import pickle
 import robobrowser
 from urllib import quote
+import re
 
 def parse_arguments(sys_args):
 	try:
@@ -105,53 +106,66 @@ def fb_log_browser(browser, fb_email, fb_password):
 		print "Error : could not login"
 		return False
 
-def get_fb_users(browser, names=[]):
-	facebook_users = []
-	# Get Facebook users matching name(s) provided
-	for name in names:
-		encoded_name = quote(name, safe='')
-		print encoded_name
-		try:
-			url = 'https://m.facebook.com/search/people/?q=' + encoded_name + '&tsid&source=filter&isTrending=0'
-			print url
-			browser.open(url)
-			root_div = browser.select('div#root')
-			# TODO : Scrap each user row
-			user_divs = []
-			for user_div in user_divs:
-				facebook_users.append(user_div)
-		except:
-			print "Error while loading URL"
-	return facebook_users
-
-def get_fb_uid(fb_user_data, browser):
-	# 1. Try to follow link (need to be logged in)
-	fb_user_profile_url = fb_user_data["link"]
-	response = browser.session.get(fb_user_profile_url, stream=True)
-	# 2. Check if final URL is Customized Profile URL (https://www.facebook.com/custom.user.name) or Non-customized Profile URL (https://www.facebook.com/profile.php?id=xxxxxxxxxxxxxxx)
-	# Non-customized Profile URL, must parse the webpage
-	if "profile.php?id=" in response.url:
-		parsed = urlparse.parse_qs(urlparse.urlparse(response.url).query)
-		try:
-			fb_uid = parsed['id'][0]
-			return fb_uid
-		except KeyError:
-			print "Error : could not get UID from non-customized Profile URL"
-			return None
-	# Customized Profile URL, must parse the webpage
-	else:
-		# TODO : Analyse browser.parsed
+def find_matching_users_divs(browser, name):
+	encoded_name = quote(name, safe='')
+	print encoded_name
+	try:
+		url = 'https://m.facebook.com/search/people/?q=' + encoded_name + '&tsid&source=filter&isTrending=0'
+		browser.open(url)
+		results_div = browser.select('div#BrowseResultsContainer')
+		user_div_match_string = r'^{"type":"xtracking","xt":"12.{\\"unit_id_click_type\\":\\"graph_search_results_item_in_module_tapped\\"'
+		user_divs = browser.find_all(attrs={"data-gt": re.compile(user_div_match_string)})
+		return user_divs
+	except:
+		print "Error while searching for users matching : " + name
 		return None
 
-def add_field_to_users(fb_users, key, lambda_value):
-	updated_fb_users = []
-	for fb_user_data in fb_users:
-		fb_uid = lambda_value(fb_user_data)
-		if fb_uid and fb_uid is not None:
-			fb_uid_dict = {key: fb_uid}
-			fb_user_data.update(fb_uid_dict)
-			updated_fb_users.append(fb_user_data)
-	return updated_fb_users
+def scrap_user_attributes(user_div):
+	# 1. Get the FB UID
+	data_gt_value = user_div["data-gt"]
+	fb_uid_match_string = r'(?<=result_id\\":).*?(?=,\\"sid)'
+	fb_uid = re.search(fb_uid_match_string, data_gt_value, flags=re.DOTALL).group(0)				
+	# 2. Get the customized
+	customized_url_link_match_string = r'{"unit_id_click_type":"graph_search_results_item_in_module_tapped"'
+	link_matches = user_div.find_all("a", attrs={"data-sigil": re.compile("m-graph-search-result-page-click-target"), "data-store": re.compile(customized_url_link_match_string)})
+	for link_match in link_matches:
+		href_value = link_match["href"]
+		fb_customized_url_match_string = r'(?<=\/).*?(?=\?refid=)'
+		try:
+			fb_customized_url = re.search(fb_customized_url_match_string, href_value, flags=re.DOTALL).group(0)
+		except AttributeError:
+			print "URL is not customized"
+	# 3. Get the FB name
+	i_matches = user_div.find_all("i")
+	for i_match in i_matches:
+		if i_match.has_attr('aria-label'):
+			fb_name = i_match["aria-label"]
+			# 4. Get the pic URL
+			style_value = i_match["style"]
+			picture_url_match_string = r'(?<=url\(").*?(?="\) no-repeat)'
+			picture_url = re.search(picture_url_match_string, style_value, flags=re.DOTALL).group(0)
+	user_attributes = {}
+	try:
+		if fb_name is not None:
+			user_attributes['fb_name'] = fb_name
+	except NameError:
+		pass
+	try:
+	 	if fb_uid is not None:
+			user_attributes['fb_uid'] = fb_uid
+	except NameError:
+		pass
+	try:
+		if fb_customized_url is not None:
+			user_attributes['fb_customized_url'] = fb_customized_url
+	except NameError:
+		pass
+	try:
+		if picture_url is not None:
+			user_attributes['picture_url'] = picture_url
+	except NameError:
+		pass
+	return user_attributes
 
 def output_result(output_type, facebook_users):
 	if output_type == "stdin":
@@ -173,7 +187,7 @@ if __name__ == '__main__':
 	inputType, inputData, outputType, verbose, fbEmail, fbPassword = parse_arguments(sys.argv[1:])
 		
 	# 1. Get input names (strings, JSON file or csv file)
-	inputNames = get_input_names(inputType, inputData)
+	searchedNames = get_input_names(inputType, inputData)
 	
 	fbBrowser = robobrowser.RoboBrowser(parser="html.parser")
 	fbBrowser.session.headers['User-Agent'] = 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53'
@@ -206,14 +220,24 @@ if __name__ == '__main__':
 			print "Access Denied - not logged in, try again"
 			sys.exit(2)
 	
-	# 4 . Search for matching facebook users
-	fbUsers = get_fb_users(fbBrowser, inputNames)
+	# 3 . Find matching Facebook users for each name provided
+	searched_results = []
+	for searchedName in searchedNames:
+		matchingUsersDivs = find_matching_users_divs(fbBrowser, searchedName)
+		searched_result = { "searched_user" : searchedName, "matching_users_divs" : matchingUsersDivs}
+		searched_results.append(searched_result)
 	
-	# 5. Extract the FB id for each user by following the link to their profile
-	#fbUsers = add_field_to_users(fbUsers, "fb_uid", lambda user : get_fb_uid(user, fbBrowser))
+	# 4. Extract the attributes (FB id, name, customized URL and profile picture) for every found user
+	for searched_result in searched_results:
+		matching_users_attributes = []
+		for matching_user_div in searched_result["matching_users_divs"]:
+			matching_user_attributes = scrap_user_attributes(matching_user_div)
+			matching_users_attributes.append(matching_user_attributes)
+		searched_result.pop("matching_users_divs", None)
+		searched_result["matching_users_attributes"] = matching_users_attributes
 	
-	# 6 . Output result in desired format
-	output_result(outputType, fbUsers)
+	# 5 . Output result in desired format
+	output_result(outputType, searched_results)
 
 
 
