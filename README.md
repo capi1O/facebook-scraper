@@ -6,21 +6,6 @@ When targeting multiple people it can be useful to quickly get some data about t
 
 # Use
 
-## Facebook App setup
-
-Facebook user access token is required to search users through the Graph API.
-A Facebook app is necessary to send this token to **facebook-scraper**, thus a Facebook app needs to be created so this script can retrieve the user token.
-
-- Upload the content of the directory webpage to a web server.
-- Go to the [Facebook dev website](https://developers.facebook.com/apps/)
-- Click "My Apps" drop-down then "Add a New App".
-- Click add platform and select "web", fill "Site URL" with the address of the web page you have uploaded : https://your-website.com/path/to/facebook-login.html
-- Fill the field "App Domains" with the base URL of this web page : https://your-website.com
-- Set the value for `--app-id` to this Facebook app ID, ex: `--app-id=xxxxxxxxxxxxxxx`
-- Set the value for `--url` to the redirect URL : `--url="https://your-website.com/path/to/facebook-login.html"`
-
-You will be prompted to grant access to this Facebook app once running the script. 
-
 ## provide list of names as non-option arguments (one or more)
 	
 `facebook-parser.py "John Doe"`
@@ -31,31 +16,16 @@ output :
 [
 	{
 		"fb_uid": "100015863894359",
-		"id": "170757540129708",
-		"link": "https://www.facebook.com/app_scoped_user_id/170757540129708/",
+		"link": "https://www.facebook.com/170757540129708/",
 		"name": "John Doe",
-		"picture":
-		{
-			"data":
-			{
-				"is_silhouette": true,
-				"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/1379841_10150004552801901_469209496895221757_n.jpg?oh=dfb4abddad51f4b8b7220d2e84b5e7f0&oe=59C9DF33"
-			}
-		}
+		"picture_url": "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/1379841_10150004552801901_469209496895221757_n.jpg?oh=dfb4abddad51f4b8b7220d2e84b5e7f0&oe=59C9DF33"
 	},
 	{
 		"fb_uid": "100015477139452",
 		"id": "198233757369194",
-		"link": "https://www.facebook.com/app_scoped_user_id/198233757369194/",
+		"link": "https://www.facebook.com/198233757369194/",
 		"name": "John Doe",
-		"picture":
-		{
-			"data":
-			{
-				"is_silhouette": true,
-				"url": "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?oh=726660dce6ba9660584686ee99a62deb&oe=59D7152F"
-			}
-		}
+		"picture_url": "https://scontent.xx.fbcdn.net/v/t1.0-1/c15.0.50.50/p50x50/10354686_10150004552801856_220367501106153455_n.jpg?oh=726660dce6ba9660584686ee99a62deb&oe=59D7152F"
 	},
 	...
 ]
@@ -72,11 +42,6 @@ output :
 `facebook-parser.py --json=people.json` or `facebook-parser.py -j people.json`
 
 See provided `people.json` example file.
-
-## input the parameters for the Graph API
-
-`facebook-parser.py --app-id=xxxxxxxxxxxxxxx` or `facebook-parser.py -a xxxxxxxxxxxxxxx`
-`facebook-parser.py --url="https://your-website.com/path/to/facebook-login.html"` or `facebook-parser.py -u "https://your-website.com/path/to/facebook-login.html"`
 
 ## input your credentials
 
@@ -99,14 +64,11 @@ See provided `people.json` example file.
 
 ## specify data
 
-`facebook-parser.py --verbose` or `facebook-parser.py -v` outputs all data fetchable through Facebook Graph API (by default it only outputs name, picture and Facebook ID).
+`facebook-parser.py --verbose` or `facebook-parser.py -v` outputs all data fetchable from website (by default it only outputs name, picture and Facebook ID).
 
 
 # dependancies
 
-- [facepy](https://github.com/jgorset/facepy) `pip install facepy`
-- [pywebview](https://github.com/r0x0r/pywebview) `pip install pywebview`
-	- pywebview dependancies : `pythonnet` or `pywin32` and `comtypes` on windows, `pyobjc` on macOS, `PyGObject` on Debian linux or `PyQt4/5` on QT linux.
 - [robobrowser](https://github.com/jmcarp/robobrowser) `pip install robobrowser`
 
 # ressources used
