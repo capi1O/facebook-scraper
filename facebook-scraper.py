@@ -12,18 +12,24 @@ import urlparse
 import pickle
 import robobrowser
 
-redirect_url = "https://your-website.com/path/to/facebook-login.html"
-fb_app_id = "xxxxxxxxxxxxxxx"
 window_closed = True
 
 def parse_arguments(sys_args):
 	try:
-		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hj:c:o:v", ["help", "json=", "csv=", "output=", "verbose"])
-		input_file = False
+		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hj:c:o:v:u:a:e:p", ["help", "json=", "csv=", "output=", "verbose", "url=", "app-id=", "email=", "password="])
+		
+		# defaults
 		input_type = ""
-		input_data = ""
 		output_type = "stdin"
 		verbose = False
+		redirect_url = "https://your-website.com/path/to/facebook-login.html"
+		fb_app_id = ""
+		fb_email = ""
+		fb_password = ""
+		
+		input_file = False
+		input_data = ""
+		
 		for option, arg in opts:
 			if option in ("-h", "--help"):
 				print "help needed"
@@ -41,6 +47,14 @@ def parse_arguments(sys_args):
 				output_type = arg
 			elif option in ("-v", "--verbose"):
 				verbose = True
+			elif option in ("-u", "--url"):
+				redirect_url = arg
+			elif option in ("-a", "--app-id"):
+				fb_app_id = arg
+			elif option in ("-e", "--email"):
+				fb_email = arg
+			elif option in ("-p", "--password"):
+				fb_password = arg
 			else:
 				assert False, "unhandled option : " + option
 		# if no JSON or CSV options provided, get non-option arguments if provided (names)
@@ -48,7 +62,7 @@ def parse_arguments(sys_args):
 			print "no input file provided, reading all non-option arguments as strings : '" + ", ".join(map(str, non_opts_args)) + "'"
 			input_type = "strings"
 			input_data = non_opts_args
-		return [input_type, input_data, output_type, verbose]
+		return [input_type, input_data, output_type, verbose, redirect_url, fb_app_id, fb_email, fb_password]
 	except getopt.GetoptError as err:
 		print(err)
 		usage()
@@ -72,7 +86,7 @@ def get_input_names(input_type, input_data = []):
 		assert False, "unhandled input type : " + input_type
 	return input_names
 
-def get_fb_token():
+def get_fb_token(fb_app_id, redirect_url):
 	global window_closed
 	# Check if user token from previous session
 	token_file = 'user_token.pk'
@@ -87,7 +101,7 @@ def get_fb_token():
 	# Launch a thread which will wait for the Facebook user token
 	window_closed = False
 	wait_fb_token_queue = Queue.Queue()
-	wait_fb_token_thread = threading.Thread(target=wait_for_fb_token, args=[wait_fb_token_queue])
+	wait_fb_token_thread = threading.Thread(target=wait_for_fb_token, args=[wait_fb_token_queue, redirect_url])
 	wait_fb_token_thread.start()
 	# Ask user for new token and wait for authorization success
 	auth_url = "https://www.facebook.com/dialog/oauth?response_type=token&client_id=" + fb_app_id + "&redirect_uri=" + redirect_url
@@ -98,7 +112,7 @@ def get_fb_token():
 	wait_fb_token_thread.join()
 	return wait_fb_token_queue.get()
 
-def wait_for_fb_token(output_queue):
+def wait_for_fb_token(output_queue, redirect_url):
 	authorization_success = wait_until(lambda : webview.get_current_url().startswith(redirect_url), lambda : window_closed is True, 10)
 
 	if authorization_success is None:
@@ -241,13 +255,13 @@ def output_result(output_type, facebook_users):
 if __name__ == '__main__':
 
 	# 0. Parse Arguments
-	inputType, inputData, outputType, verbose = parse_arguments(sys.argv[1:])
+	inputType, inputData, outputType, verbose, redirectUrl, fbAppId, fbEmail, fbPassword = parse_arguments(sys.argv[1:])
 		
 	# 1. Get input names (strings, JSON file or csv file)
 	inputNames = get_input_names(inputType, inputData)
 	
 	# 2 . Get authorization from user to Facebook Graph API
-	fbUserToken = get_fb_token()
+	fbUserToken = get_fb_token(fbAppId, redirectUrl)
 	
 	# 3 . Test Facebook User token
 	if not fb_token_valid(fbUserToken):
@@ -263,7 +277,7 @@ if __name__ == '__main__':
 	fbUsers = get_fb_users(fbUserToken, verbose, inputNames)
 	
 	# 5. Get the FB id for each user by following the link from Graph API in a logged browser
-	fbLoggedBrowser = fb_logged_browser("your.email@example.com", "xxxxxxxx")
+	fbLoggedBrowser = fb_logged_browser(fbEmail, fbPassword)
 	fbUsers = add_field_to_users(fbUsers, "fb_uid", lambda user : get_fb_uid(user, fbLoggedBrowser))
 	
 	# 6 . Output result in desired format

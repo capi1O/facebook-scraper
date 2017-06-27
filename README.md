@@ -16,8 +16,8 @@ A Facebook app is necessary to send this token to **facebook-scraper**, thus a F
 - Click "My Apps" drop-down then "Add a New App".
 - Click add platform and select "web", fill "Site URL" with the address of the web page you have uploaded : https://your-website.com/path/to/facebook-login.html
 - Fill the field "App Domains" with the base URL of this web page : https://your-website.com
-- Copy the Facebook app ID and set the value of `fb_app_id` in facebook-scraper.py.
-- Set the value of `redirect_url` in facebook-scraper.py : https://your-website.com/path/to/facebook-login.html
+- Set the value for `--app-id` to this Facebook app ID, ex: `--app-id=xxxxxxxxxxxxxxx`
+- Set the value for `--url` to the redirect URL : `--url="https://your-website.com/path/to/facebook-login.html"`
 
 You will be prompted to grant access to this Facebook app once running the script. 
 
@@ -72,6 +72,16 @@ output :
 `facebook-parser.py --json=people.json` or `facebook-parser.py -j people.json`
 
 See provided `people.json` example file.
+
+## input the parameters for the Graph API
+
+`facebook-parser.py --app-id=xxxxxxxxxxxxxxx` or `facebook-parser.py -a xxxxxxxxxxxxxxx`
+`facebook-parser.py --url="https://your-website.com/path/to/facebook-login.html"` or `facebook-parser.py -u "https://your-website.com/path/to/facebook-login.html"`
+
+## input your credentials
+
+`facebook-parser.py --email="your.email@example.com"` or `facebook-parser.py -e "your.email@example.com"`
+`facebook-parser.py --password="xxxxxxxx"` or `facebook-parser.py -p "xxxxxxxx"`
 
 ## specify output format (console, JSON file or CSV file)
 
