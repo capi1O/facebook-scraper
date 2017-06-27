@@ -116,7 +116,6 @@ def get_fb_users(browser, names=[]):
 			print url
 			browser.open(url)
 			root_div = browser.select('div#root')
-			print browser.parsed
 			# TODO : Scrap each user row
 			user_divs = []
 			for user_div in user_divs:
@@ -176,7 +175,8 @@ if __name__ == '__main__':
 	# 1. Get input names (strings, JSON file or csv file)
 	inputNames = get_input_names(inputType, inputData)
 	
-	fbBrowser = robobrowser.RoboBrowser()
+	fbBrowser = robobrowser.RoboBrowser(parser="html.parser")
+	fbBrowser.session.headers['User-Agent'] = 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53'
 
 	# 2A. Try to reuse cookies (if any) from previous session
 	fbCookies = get_fb_cookies()
