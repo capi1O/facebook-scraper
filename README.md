@@ -80,7 +80,51 @@ On first connection `facebook-batch` needs your credentials (for next connection
 - `facebook-batch.py search "John Doe" "John Smith"` => get raw HTML data for all Facebook users matching names John Doe and John Smith :
 
 ```
-[{'searched_user': 'John Doe', 'matching_users_divs_files': ['output/John%20Doe-0.html', 'output/John%20Doe-1.html', 'output/John%20Doe-2.html', 'output/John%20Doe-3.html', 'output/John%20Doe-4.html', 'output/John%20Doe-5.html', 'output/John%20Doe-6.html', 'output/John%20Doe-7.html', 'output/John%20Doe-8.html', 'output/John%20Doe-9.html']}, {'searched_user': 'John Smith', 'matching_users_divs_files': ['output/John%20Smith-0.html', 'output/John%20Smith-1.html', 'output/John%20Smith-2.html', 'output/John%20Smith-3.html', 'output/John%20Smith-4.html', 'output/John%20Smith-5.html', 'output/John%20Smith-6.html', 'output/John%20Smith-7.html', 'output/John%20Smith-8.html', 'output/John%20Smith-9.html']}]
+[{"searched_user": "John Doe", "matching_users_divs_files": ["output/John%20Doe-0.html", "output/John%20Doe-1.html", "output/John%20Doe-2.html", "output/John%20Doe-3.html", "output/John%20Doe-4.html", "output/John%20Doe-5.html", "output/John%20Doe-6.html", "output/John%20Doe-7.html", "output/John%20Doe-8.html", "output/John%20Doe-9.html"]}, {"searched_user": "John Smith", "matching_users_divs_files": ["output/John%20Smith-0.html", "output/John%20Smith-1.html", "output/John%20Smith-2.html", "output/John%20Smith-3.html", "output/John%20Smith-4.html", "output/John%20Smith-5.html", "output/John%20Smith-6.html", "output/John%20Smith-7.html", "output/John%20Smith-8.html", "output/John%20Smith-9.html"]}]
+```
+
+This is useless as such unless you parse it to get actual data from it. The output can be parsed with `facebook-scrap.py` thanks to a handy `pipe-mapper.py` script which maps the output of `facebook-bash.py` to the input of `facebook-scrap.py` :
+
+`python facebook-batch.py search "John Doe" "John Smith" --email="your.email@example.com" --password="xxxxxxxx" | python pipe-mapper.py -o facebook-scrap.py -c user-search` : 
+
+```
+[
+	{
+	"searched_user": "John Doe",
+	"matching_users_attributes": 
+	[
+		{
+			"fb_customized_url": "JohnJohn.Doe",
+			"fb_name": "John-john Doe",
+			"fb_uid": "100000016191070",
+			"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c0.13.64.64/p64x64/1920462_779525028724696_446426524_n.jpg?efg=eyJpIjoibCJ9&oh=f0ae9a0e5e743da1c1326144343da3f8&oe=59E1F6F1"
+		},
+		{
+			"fb_customized_url": "johndoe.escobar",
+			"fb_name": "John-Doe Escobar",
+			"fb_uid": "1125608844",
+			"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/18447291_10211252162596279_5275418469254673155_n.jpg?efg=eyJpIjoibCJ9&oh=96fa5cbde90a96c2f8abddb8ae922e88&oe=59E1984E"
+		},
+		...
+	]},
+	{
+	"searched_user": "John Smith",
+	"matching_users_attributes": 
+	[
+		{
+			"fb_name": "John Smith",
+			"fb_uid": "674345013",
+			"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/15697334_10158029528495014_4623996019099638763_n.jpg?efg=eyJpIjoibCJ9&oh=3002b1557ce4961f8afec030ef289435&oe=59E3CAEB"
+		},
+		{
+			"fb_customized_url": "UBetterfollowSmith",
+			"fb_name": "John Smith",
+			"fb_uid": "692792352",
+			"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/17457642_10154255617277353_8169698937347482715_n.jpg?efg=eyJpIjoibCJ9&oh=b8e9e91fb4a6719991e13b74afde5845&oe=59CBBD3F"
+		},
+		...
+	]}
+]
 ```
 
 ### Like Facebook Pages 
@@ -164,8 +208,12 @@ On first connection `facebook-batch` needs your credentials (for next connection
 - https://stackoverflow.com/questions/4429966/how-to-make-a-python-script-pipeable-in-bash
 - https://stackoverflow.com/questions/12517451/automatically-creating-directories-with-file-output
 - https://stackoverflow.com/questions/38028384/beautifulsoup-is-there-a-difference-between-find-and-select-python-3-x
-- https://stackoverflow.com/questions/988228/convert-a-string-representation-of-a-dictionary-to-a-dictionary
+- https://stackoverflow.com/questions/4547274/convert-a-python-dict-to-a-string-and-back
 - https://stackoverflow.com/questions/9787024/extracting-data-from-html-files-with-beautifulsoup-and-python
+- https://stackoverflow.com/questions/29928168/why-json-loads-is-returning-a-unicode-object-instead-of-string
+- https://stackoverflow.com/questions/3781851/run-a-python-script-from-another-python-script-passing-in-args
+- https://stackoverflow.com/questions/1904394/read-only-the-first-line-of-a-file
+- https://stackoverflow.com/questions/3503879/assign-output-of-os-system-to-a-variable-and-prevent-it-from-being-displayed-on 
 
 # Code
 

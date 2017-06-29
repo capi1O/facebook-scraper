@@ -14,7 +14,7 @@ def get_input_data(sys_args):
 		# take the first non-optional argument as the command name
 		command = non_opts_args.pop(0)
 		#TODO : handle error if 0 non-optional argument
-		print "command : '" + command + "'"
+		# print "command : '" + command + "'"
 		if command not in ["user-search", "profile", "page"]:
 			assert False, "unhandled command : " + command
 					
@@ -31,7 +31,7 @@ def get_input_data(sys_args):
 				verbose = True
 			elif option in ("-o", "--output"):
 				output_type = arg
-				print "output_type : '" + output_type + "'"
+				# print "output_type : '" + output_type + "'"
 				if output_type not in ["stdout", "json", "csv"]:
 					assert False, "unhandled output : " + output_type
 			else:
@@ -39,11 +39,11 @@ def get_input_data(sys_args):
 
 		if input_type is "stdin":
 			# reading all (remaining) non-option arguments as strings 
-			print "remaining non-option arguments : '" + ", ".join(map(str, non_opts_args)) + "'"
+			# print "remaining non-option arguments : '" + ", ".join(map(str, non_opts_args)) + "'"
 			input_data = non_opts_args
 		return [command, input_data, output_type]
 	except getopt.GetoptError as err:
-		print(err)
+		sys.stderr.write(err)
 		usage()
 		sys.exit(2)
 		
@@ -64,7 +64,8 @@ def scrap_user_attributes(user_div_html):
 		try:
 			fb_customized_url = re.search(fb_customized_url_match_string, href_value, flags=re.DOTALL).group(0)
 		except AttributeError:
-			print "URL is not customized"
+			# sys.stderr.write("URL is not customized")
+			pass
 	# 3. Get the FB name
 	i_matches = user_div.find_all("i")
 	for i_match in i_matches:
@@ -126,7 +127,7 @@ if __name__ == '__main__':
 						userAttributes = scrap_user_attributes(htmlFile.read())
 						results.append(userAttributes)
 					except EOFError:
-						print "error while reading file '" + htmlFileName + "'"
+						sys.stderr.write("error while reading file '" + htmlFileName + "'")
 						pass
 	elif command is "profile scraping ":
 		#TODO
