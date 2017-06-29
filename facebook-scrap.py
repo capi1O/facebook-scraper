@@ -9,12 +9,12 @@ import json
 def get_input_data(sys_args):
 	input_data = []
 	try:
-		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hv:o", ["help", "verbose", "output="])
+		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hvo:", ["help", "verbose", "output="])
 		
 		# take the first non-optional argument as the command name
 		command = non_opts_args.pop(0)
 		#TODO : handle error if 0 non-optional argument
-		print command
+		print "command : '" + command + "'"
 		if command not in ["user-search", "profile", "page"]:
 			assert False, "unhandled command : " + command
 					
@@ -31,8 +31,9 @@ def get_input_data(sys_args):
 				verbose = True
 			elif option in ("-o", "--output"):
 				output_type = arg
+				print "output_type : '" + output_type + "'"
 				if output_type not in ["stdout", "json", "csv"]:
-					assert False, "unhandled output : " + command
+					assert False, "unhandled output : " + output_type
 			else:
 				assert False, "unhandled option : " + option
 
@@ -98,7 +99,8 @@ def scrap_user_attributes(user_div_html):
 
 def output_result(output_type, results):
 	if output_type == "stdout":
-		# print results
+		print json.dumps(results)
+	elif output_type == "pretty":
 		print json.dumps(results, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
 	elif output_type == "json":
 		with open("output.json", 'w+') as output_file:

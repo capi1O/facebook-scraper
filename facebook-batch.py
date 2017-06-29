@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 import getopt, sys
 import os
 import errno
@@ -12,7 +13,7 @@ import re
 def get_input_data(sys_args):
 	input_data = []
 	try:
-		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hvs:l:c:j:e:p", ["help", "verbose", "stdin", "inline-csv=", "csv=", "json=", "email=", "password="])
+		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hvsl:c:j:e:p:", ["help", "verbose", "stdin", "inline-csv=", "csv=", "json=", "email=", "password="])
 		
 		# take the first non-optional argument as the command name
 		command = non_opts_args.pop(0)
@@ -130,7 +131,7 @@ def output_result(results):
 		# Remove raw HTML from results
 		result.pop(results_data, None)
 	# Print results array to stdout
-	print str(results)
+	print json.dumps(results) #, ensure_ascii=False, encoding="utf-8"
 
 if __name__ == '__main__':
 
