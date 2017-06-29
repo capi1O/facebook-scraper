@@ -1,82 +1,68 @@
 #!/usr/bin/env python
 
-import json
 import getopt, sys
 import os
-import threading
-import Queue
-import time
+import errno
 import urlparse
 import pickle
 import robobrowser
 from urllib import quote
 import re
 
-def parse_arguments(sys_args):
+def get_input_data(sys_args):
+	input_data = []
 	try:
-		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hj:c:o:v:e:p", ["help", "json=", "csv=", "output=", "verbose", "email=", "password="])
+		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hvs:l:c:j:e:p", ["help", "verbose", "stdin", "inline-csv=", "csv=", "json=", "email=", "password="])
 		
-		# defaults
-		input_type = ""
-		output_type = "stdin"
+		# take the first non-optional argument as the command name
+		command = non_opts_args.pop(0)
+		#TODO : handle error if 0 non-optional argument
+		# print command
+		if command not in ["search", "like", "message"]:
+			assert False, "unhandled command : " + command
+					
+		# default optional arguments
+		input_type = "stdin"
 		verbose = False
 		fb_email = ""
 		fb_password = ""
-		
-		input_file = False
-		input_data = ""
-		
+				
 		for option, arg in opts:
 			if option in ("-h", "--help"):
 				print "help needed"
-			elif option in ("-j", "--json"):
-				print "JSON file provided"
-				input_file = True
-				input_type = "json"
-				input_data = arg
-			elif option in ("-c", "--csv"):
-				print "CSV file provided"
-				input_file = True
-				input_type = "csv"
-				input_data = arg
-			elif option in ("-o", "--output"):
-				output_type = arg
+				# TODO
 			elif option in ("-v", "--verbose"):
 				verbose = True
+			elif option in ("-s", "--stdin"):
+				pass
+			elif option in ("-l", "--inline-csv"):
+				input_type = "inline-csv"
+				input_data = arg.split(',')
+			elif option in ("-j", "--json"):
+				input_type = "json"
+				with open(arg) as json_input:
+					for json_object in json.load(json_input):
+						input_data.append(json_object['name'])
+						#TODO : handle other input fields
+			elif option in ("-c", "--csv"):
+				input_type = "csv"
+				#TODO : loads CSV file
 			elif option in ("-e", "--email"):
 				fb_email = arg
 			elif option in ("-p", "--password"):
 				fb_password = arg
 			else:
 				assert False, "unhandled option : " + option
-		# if no JSON or CSV options provided, get non-option arguments if provided (names)
-		if input_file == False:
-			print "no input file provided, reading all non-option arguments as strings : '" + ", ".join(map(str, non_opts_args)) + "'"
-			input_type = "strings"
+				
+		if input_type is "stdin":
+			# reading all (remaining) non-option arguments as strings 
+			# print "remaining non-option arguments : '" + ", ".join(map(str, non_opts_args)) + "'"
 			input_data = non_opts_args
-		return [input_type, input_data, output_type, verbose, fb_email, fb_password]
+		return [command, input_data, fb_email, fb_password]
 	except getopt.GetoptError as err:
-		print(err)
+		sys.stderr.write(err)
 		usage()
 		sys.exit(2)
-
-def get_input_names(input_type, input_data = []):
-	input_names=[]
-	if input_type == "strings":
-		input_names = input_data
-	elif input_type == "json":
-		# json_file_path = os.getcwd() + '/' + input_data
-		# print json_file_path
-		with open(input_data) as json_data:
-			people_json = json.load(json_data)
-		for person in people_json:
-			input_names.append(person['name'])
-	elif input_type == "csv":
-		#TODO : loads CSV file
-		pass
-	else:
-		assert False, "unhandled input type : " + input_type
-	return input_names
 
 def get_fb_cookies():
 	# Check if user token from previous session
@@ -87,7 +73,7 @@ def get_fb_cookies():
 				saved_cookies = pickle.load(fi)
 				return saved_cookies
 			except EOFError:
-				print "No saved cookies in file : ", fi
+				sys.stderr.write("No saved cookies in file : " + cookies_file)
 				return None
 
 def fb_log_browser(browser, fb_email, fb_password):
@@ -103,12 +89,12 @@ def fb_log_browser(browser, fb_email, fb_password):
 	if True:
 		return True
 	else:
-		print "Error : could not login"
+		sys.stderr.write("Error : could not login")
 		return False
 
-def find_matching_users_divs(browser, name):
+def search_users_matching(name, browser):
 	encoded_name = quote(name, safe='')
-	print encoded_name
+	#print encoded_name
 	try:
 		url = 'https://m.facebook.com/search/people/?q=' + encoded_name + '&tsid&source=filter&isTrending=0'
 		browser.open(url)
@@ -117,85 +103,48 @@ def find_matching_users_divs(browser, name):
 		user_divs = browser.find_all(attrs={"data-gt": re.compile(user_div_match_string)})
 		return user_divs
 	except:
-		print "Error while searching for users matching : " + name
+		sys.stderr.write("Error while searching for users matching : " + name)
 		return None
 
-def scrap_user_attributes(user_div):
-	# 1. Get the FB UID
-	data_gt_value = user_div["data-gt"]
-	fb_uid_match_string = r'(?<=result_id\\":).*?(?=,\\"sid)'
-	fb_uid = re.search(fb_uid_match_string, data_gt_value, flags=re.DOTALL).group(0)				
-	# 2. Get the customized
-	customized_url_link_match_string = r'{"unit_id_click_type":"graph_search_results_item_in_module_tapped"'
-	link_matches = user_div.find_all("a", attrs={"data-sigil": re.compile("m-graph-search-result-page-click-target"), "data-store": re.compile(customized_url_link_match_string)})
-	for link_match in link_matches:
-		href_value = link_match["href"]
-		fb_customized_url_match_string = r'(?<=\/).*?(?=\?refid=)'
-		try:
-			fb_customized_url = re.search(fb_customized_url_match_string, href_value, flags=re.DOTALL).group(0)
-		except AttributeError:
-			print "URL is not customized"
-	# 3. Get the FB name
-	i_matches = user_div.find_all("i")
-	for i_match in i_matches:
-		if i_match.has_attr('aria-label'):
-			fb_name = i_match["aria-label"]
-			# 4. Get the pic URL
-			style_value = i_match["style"]
-			picture_url_match_string = r'(?<=url\(").*?(?="\) no-repeat)'
-			picture_url = re.search(picture_url_match_string, style_value, flags=re.DOTALL).group(0)
-	user_attributes = {}
-	try:
-		if fb_name is not None:
-			user_attributes['fb_name'] = fb_name
-	except NameError:
-		pass
-	try:
-	 	if fb_uid is not None:
-			user_attributes['fb_uid'] = fb_uid
-	except NameError:
-		pass
-	try:
-		if fb_customized_url is not None:
-			user_attributes['fb_customized_url'] = fb_customized_url
-	except NameError:
-		pass
-	try:
-		if picture_url is not None:
-			user_attributes['picture_url'] = picture_url
-	except NameError:
-		pass
-	return user_attributes
-
-def output_result(output_type, facebook_users):
-	if output_type == "stdin":
-		print json.dumps(facebook_users, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
-	elif output_type == "json":
-		# json_file_path = os.getcwd() + '/' + "output.json"
-		# print json_file_path
-		with open("output.json", 'w+') as output_file:
-			json.dump(facebook_users, output_file)
-	elif output_type == "csv":
-		#TODO : write to CSV file
-		pass
-	else:
-		assert False, "unhandled output type : " + output_type
+def output_result(results):
+	results_type = "searched_user"
+	results_data = "matching_users_divs"
+	results_files = "matching_users_divs_files"
+	#TODO : use generic key names
+	for result in results:
+		result[results_files] = []
+		html_results = result[results_data]
+		for i, html_result in enumerate(html_results):
+			# Write HTML to file
+			html_result_filename= "output/" + quote(result[results_type], safe='') + "-" + str(i) + ".html"
+			if not os.path.exists(os.path.dirname(html_result_filename)):
+				try:
+					os.makedirs(os.path.dirname(html_result_filename))
+				except OSError as exc: # Guard against race condition
+					if exc.errno != errno.EEXIST:
+						raise
+			with open(html_result_filename, 'wb+') as html_result_file:
+				html_result_file.write(str(html_result))
+			# Add filename to results array
+			result[results_files].append(html_result_filename)
+		# Remove raw HTML from results
+		result.pop(results_data, None)
+	# Print results array to stdout
+	print str(results)
 
 if __name__ == '__main__':
 
-	# 0. Parse Arguments
-	inputType, inputData, outputType, verbose, fbEmail, fbPassword = parse_arguments(sys.argv[1:])
-		
-	# 1. Get input names (strings, JSON file or csv file)
-	searchedNames = get_input_names(inputType, inputData)
+	# 0. Get input data (strings, JSON file or csv file)
+	command, inputData, fbEmail, fbPassword = get_input_data(sys.argv[1:])
 	
+	# 1. Setup the scraper browser
 	fbBrowser = robobrowser.RoboBrowser(parser="html.parser")
 	fbBrowser.session.headers['User-Agent'] = 'Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53'
 
 	# 2A. Try to reuse cookies (if any) from previous session
 	fbCookies = get_fb_cookies()
 	if fbCookies:
-		print "Cookies found, no need to log in"
+		# print "Cookies found, no need to log in"
 		fbBrowser.session.cookies = fbCookies
 		#TODO : check if valid
 		logged_in = True
@@ -205,8 +154,15 @@ if __name__ == '__main__':
 				os.remove('cookies.pk')
 			except OSError:
 				pass
-	# 2B . Try to login using credentials
+	# 2B. Try to login using credentials
 	else:
+		# ask credentials if not provided as CL args
+		if not fbEmail :
+			#TODO: get fb mail
+			print "no email provided"
+		if not fbPassword :
+			#TODO: get fb password
+			print "no password provided"
 		if fb_log_browser(fbBrowser, fbEmail, fbPassword):
 			# Save cookies for future session
 			fb_cookies = fbBrowser.session.cookies
@@ -215,29 +171,30 @@ if __name__ == '__main__':
 				with open(cookies_file, 'wb+') as fi:
 					pickle.dump(fb_cookies, fi)
 			else:
-				print "Error : could not get cookies"
+				sys.stderr.write("Error : could not get cookies")
 		else:
-			print "Access Denied - not logged in, try again"
+			sys.stderr.write("Access Denied - not logged in, try again")
 			sys.exit(2)
 	
-	# 3 . Find matching Facebook users for each name provided
-	searched_results = []
-	for searchedName in searchedNames:
-		matchingUsersDivs = find_matching_users_divs(fbBrowser, searchedName)
-		searched_result = { "searched_user" : searchedName, "matching_users_divs" : matchingUsersDivs}
-		searched_results.append(searched_result)
-	
-	# 4. Extract the attributes (FB id, name, customized URL and profile picture) for every found user
-	for searched_result in searched_results:
-		matching_users_attributes = []
-		for matching_user_div in searched_result["matching_users_divs"]:
-			matching_user_attributes = scrap_user_attributes(matching_user_div)
-			matching_users_attributes.append(matching_user_attributes)
-		searched_result.pop("matching_users_divs", None)
-		searched_result["matching_users_attributes"] = matching_users_attributes
-	
-	# 5 . Output result in desired format
-	output_result(outputType, searched_results)
+	results = []
+	# 3A. Find matching Facebook users for each name provided
+	if command == "search":
+		# print "searching..."
+		for searchedName in inputData:
+			matchingUsersDivs = search_users_matching(searchedName, fbBrowser)
+			searched_result = { "searched_user" : searchedName, "matching_users_divs" : matchingUsersDivs}
+			results.append(searched_result)
+		
+	elif command is "like":
+		#TODO
+		print "batch like not implemented yet"
+	elif command is "message":
+		#TODO
+		print "batch message not implemented yet"
+		
+	# 4. Output result in desired format
+	output_result(results)
+
 
 
 

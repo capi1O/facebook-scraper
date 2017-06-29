@@ -1,100 +1,115 @@
-**facebook-scraper** is a python script which grabs the Facebook attributes for a list of users (provided as CSV, JSON or as command line arguments) and outputs them as desired : by adding the fields to the input file or by creating an output file.
+**facebook-scraper** is a set of python scripts to perform batch requests to Facebook and scrap data from it. Can search for multiple users or Pages at once, send messages or posts to multiple users, like multiple Facebook Pages... Scraped data can be Facebook id (UID), name, profile picture, Likes number, etc... Input can be CSV, JSON or input from another script. 
 
-# why
+This tool does not use the Graph API as it is limited in the number of requests that can be made, also not all the data is available from the Graph API.
+
+# Why
 
 When targeting multiple people it can be useful to quickly get some data about them from Facebook, most notably the Facebook UID which could be used to send an email to a Facebook user via facebook_ID@facebook.com (see http://smallbusiness.chron.com/email-address-facebook-id-53471.html or https://www.matthewbarby.com/emailing-facebook-followers/). It is now deprecated but the Facebook UID is still useful for many plugins or mass marketing tools.
 
 # Use
 
-## provide list of names as non-option arguments (one or more)
-	
-`facebook-parser.py "John Doe" "John Smith"`
-	
-output :
+## Scrap data : `facebook-scrap.py`
+
+input : list of URLs (or local HTML files paths)
+output : JSON to stdout or file, CSV file
+
+### Scrap Facebook user attributes from a search result
+
+- `facebook-scrap.py user-search "input/John%20Smith-8.html" "input/John%20Smith-9.html"` => scrap user attributes from HTML block of a result from a search on Facebook :
 
 ```
-[
-	{
-	"searched_user": "John Doe",
-	"matching_users_attributes": 
-		[
-			{
-				"fb_customized_url": "JohnJohn.Doe",
-				"fb_name": "John-john Doe",
-				"fb_uid": "100000016191070",
-				"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c0.13.64.64/p64x64/1920462_779525028724696_446426524_n.jpg?efg=eyJpIjoibCJ9&oh=f0ae9a0e5e743da1c1326144343da3f8&oe=59E1F6F1"
-			},
-			{
-				"fb_customized_url": "johndoe.escobar",
-				"fb_name": "John-Doe Escobar",
-				"fb_uid": "1125608844",
-				"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/18447291_10211252162596279_5275418469254673155_n.jpg?efg=eyJpIjoibCJ9&oh=96fa5cbde90a96c2f8abddb8ae922e88&oe=59E1984E"
-			},
-			...
-		]
-	},
-	{
-	"searched_user": "John Smith",
-	"matching_users_attributes": 
-		[
-			{
-				"fb_name": "John Smith",
-				"fb_uid": "674345013",
-				"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/15697334_10158029528495014_4623996019099638763_n.jpg?efg=eyJpIjoibCJ9&oh=3002b1557ce4961f8afec030ef289435&oe=59E3CAEB"
-			},
-			{
-				"fb_customized_url": "UBetterfollowSmith",
-				"fb_name": "John Smith",
-				"fb_uid": "692792352",
-				"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/p64x64/17457642_10154255617277353_8169698937347482715_n.jpg?efg=eyJpIjoibCJ9&oh=b8e9e91fb4a6719991e13b74afde5845&oe=59CBBD3F"
-			},
-			...
-		]
-	}
-]
+{
+	"fb_customized_url": "JohnJohn.Doe",
+	"fb_name": "John-john Doe",
+	"fb_uid": "100000016191070",
+	"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c0.13.64.64/p64x64/1920462_779525028724696_446426524_n.jpg?efg=eyJpIjoibCJ9&oh=f0ae9a0e5e743da1c1326144343da3f8&oe=59E1F6F1"
+}
+```
+### Scrap Facebook user attributes from Facebook Profile or Facebook Page
+
+- `facebook-scrap.py profile "https://facebook.com/JohnJohn.Doe"` => scrap user attributes from a Facebook profile HTML  *not implemented yet*:
+
+```
+{
+	"fb_customized_url": "JohnJohn.Doe",
+	"fb_name": "John-john Doe",
+	"fb_uid": "100000016191070",
+	"friends_number": "112"
+	"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c0.13.64.64/p64x64/1920462_779525028724696_446426524_n.jpg?efg=eyJpIjoibCJ9&oh=f0ae9a0e5e743da1c1326144343da3f8&oe=59E1F6F1"
+}
 ```
 
-## provide list of names in a file (JSON or CSV)
+- `facebook-scrap.py page "https://facebook.com/TheCocaColaCo" "input/nike-7.html"` => scrap user attributes from a Facebook Page HTML *not implemented yet* :
 
-### CSV
+```
+{
+	"fb_customized_url": "TheCocaColaCo",
+	"fb_name": "Coca Cola",
+	"fb_uid": "100000016191070",
+	"likes": "7980542"
+	"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c0.13.64.64/p64x64/1920462_779525028724696_446426524_n.jpg?efg=eyJpIjoibCJ9&oh=f0ae9a0e5e743da1c1326144343da3f8&oe=59E1F6F1"
+},
+{
+	"fb_customized_url": "nike",
+	"fb_name": "Nike",
+	"fb_uid": "10321191219",
+	"likes": "123756"
+	"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c0.13.64.64/p64x64/1920462_779525028724696_446426524_n.jpg?efg=eyJpIjoibCJ9&oh=f0ae9a0e5e743da1c1326144343da3f8&oe=59E1F6F1"
+}
+```
 
-`facebook-parser.py --csv=people.csv` or `facebook-parser.py -c people.csv`
+### Specify output (JSON to console, JSON file or CSV file)
 
-### JSON
+- `facebook-scrap.py user-search "input/John%20Smith-8.html" "input/John%20Smith-9.html" --output=stdout` or `-o stdout` => serialized array of dicts to stdout (default)
+- `facebook-scrap.py user-search "input/John%20Smith-8.html" "input/John%20Smith-9.html" --output=csv` or `-o csv` => save as a CSV file *not implemented yet*
+- `facebook-scrap.py user-search "input/John%20Smith-8.html" "input/John%20Smith-9.html" --output=json` or `-o json` => save as a JSON file
 
-`facebook-parser.py --json=people.json` or `facebook-parser.py -j people.json`
+## Batch Requests : `facebook-batch.py`
 
-See provided `people.json` example file.
+input : list of strings, CSV file, JSON file
+output : serialized array of dicts to stdout
 
-## input your credentials
+### Provide credentials
 
-`facebook-parser.py --email="your.email@example.com"` or `facebook-parser.py -e "your.email@example.com"`
-`facebook-parser.py --password="xxxxxxxx"` or `facebook-parser.py -p "xxxxxxxx"`
+On first connection `facebook-batch` needs your credentials (for next connections it uses cookies). If none are given you will be prompted to enter them; to avoid that provide them as arguments :
 
-## specify output format (console, JSON file or CSV file)
+`facebook-batch.py --email="your.email@example.com" --password="xxxxxxxx"` or `-e "your.email@example.com" -p "xxxxxxxx"`
 
-### Console output
+### Search Facebook users 
 
-`facebook-parser.py --output=stdin` or `facebook-parser.py -o stdin`
+- `facebook-batch.py search "John Doe" "John Smith"` => get raw HTML data for all Facebook users matching names John Doe and John Smith :
 
-### CSV
+```
+[{'searched_user': 'John Doe', 'matching_users_divs_files': ['output/John%20Doe-0.html', 'output/John%20Doe-1.html', 'output/John%20Doe-2.html', 'output/John%20Doe-3.html', 'output/John%20Doe-4.html', 'output/John%20Doe-5.html', 'output/John%20Doe-6.html', 'output/John%20Doe-7.html', 'output/John%20Doe-8.html', 'output/John%20Doe-9.html']}, {'searched_user': 'John Smith', 'matching_users_divs_files': ['output/John%20Smith-0.html', 'output/John%20Smith-1.html', 'output/John%20Smith-2.html', 'output/John%20Smith-3.html', 'output/John%20Smith-4.html', 'output/John%20Smith-5.html', 'output/John%20Smith-6.html', 'output/John%20Smith-7.html', 'output/John%20Smith-8.html', 'output/John%20Smith-9.html']}]
+```
 
-`facebook-parser.py --output=csv` or `facebook-parser.py -o csv`
+### Like Facebook Pages 
 
-### JSON
+- `facebook-batch.py like "TheCocaColaCo" "nike"` => like all Pages matching customized URL or Facebook UIDs provided. *not implemented yet*
 
-`facebook-parser.py --output=json` or `facebook-parser.py -o json`
+### Send messages to Facebook users 
 
-## specify data
+- `facebook-batch.py message "100000016191070" "674345013"` => send a message to all Facebook users matching customized URL or Facebook UIDs provided. *not implemented yet*
 
-`facebook-parser.py --verbose` or `facebook-parser.py -v` outputs all data fetchable from website (by default it only outputs name, picture and Facebook ID).
+### Use a file as input (list of strings, JSON file or CSV file)
 
+- `facebook-batch.py search --strings "John Doe" "John Smith"` or `-s "John Doe" "John Smith"` => list of names to search as non-option arguments (one or more) (default)
+- `facebook-batch.py search --inline-csv "John Doe,John Smith"` or `-l "John Doe,John Smith"` => list of names to search as comma-separated strings.
+- `facebook-batch.py search --csv=names.csv` or `-c names.csv` => list of names to search in a CSV file. *not implemented yet*
+- `facebook-batch.py search --json=names.json` or `-j names.json` => JSON array of names to search in a file. See provided `names.json` example file.
+- `facebook-batch.py like --json=pages.json` or `-j pages.json` => JSON array of pages to like in a file. See provided `pages.json` example file.
+- `facebook-batch.py like --json=posts.json` or `-j posts.json` => JSON array of posts to like in a file. See provided `posts.json` example file.
+- `facebook-batch.py message --json=uids.json` or `-j uids.json` => JSON array of Facebook UIDs to send a message to in a file. See provided `uids.json` example file.
 
-# dependancies
+# Dependancies
 
-- [robobrowser](https://github.com/jmcarp/robobrowser) `pip install robobrowser`
+- `facebook-scrap.py`
+	- [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/) `pip install bs4`
 
-# ressources used
+- `facebook-batch.py`
+	- [robobrowser](https://github.com/jmcarp/robobrowser) `pip install robobrowser`
+
+# Ressources used
 
 - https://stackoverflow.com/questions/43192556/using-jq-with-bash-to-run-command-for-each-object-in-array
 - https://stackoverflow.com/questions/31988171/facebook-graph-api-simple-search-for-users-by-name
@@ -140,10 +155,21 @@ See provided `people.json` example file.
 - https://stackoverflow.com/questions/5015483/test-if-an-attribute-is-present-in-a-tag-in-beautifulsoup
 - https://stackoverflow.com/questions/1592565/determine-if-variable-is-defined-in-python
 - https://stackoverflow.com/questions/11277432/how-to-remove-a-key-from-a-python-dictionary
+- https://stackoverflow.com/questions/5864485/how-can-i-split-this-comma-delimited-string-in-python
+- http://www.bogotobogo.com/python/python_serialization_pickle_json.php
+- https://stackoverflow.com/questions/2831597/processing-command-line-arguments-in-prefix-notation-in-python
+- https://stackoverflow.com/questions/1504717/why-does-comparing-strings-in-python-using-either-or-is-sometimes-produce
+- https://stackoverflow.com/questions/522563/accessing-the-index-in-python-for-loops
+- https://stackoverflow.com/questions/40529848/python-beautifulsoup-how-to-write-the-output-to-html-file
+- https://stackoverflow.com/questions/4429966/how-to-make-a-python-script-pipeable-in-bash
+- https://stackoverflow.com/questions/12517451/automatically-creating-directories-with-file-output
+- https://stackoverflow.com/questions/38028384/beautifulsoup-is-there-a-difference-between-find-and-select-python-3-x
+- https://stackoverflow.com/questions/988228/convert-a-string-representation-of-a-dictionary-to-a-dictionary
+- https://stackoverflow.com/questions/9787024/extracting-data-from-html-files-with-beautifulsoup-and-python
 
-# code
+# Code
 
-## contributing
+## Contributing
 
 This project adheres to the Contributor Covenant [code of conduct](code-of-conduct.md).
 By participating, you are expected to uphold this code. Please report unacceptable behavior to monkeydri@github.com.
