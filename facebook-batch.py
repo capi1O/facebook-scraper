@@ -13,7 +13,7 @@ import re
 def get_input_data(sys_args):
 	input_data = []
 	try:
-		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hvsl:c:j:e:p:", ["help", "verbose", "stdin", "inline-csv=", "csv=", "json=", "email=", "password="])
+		opts, non_opts_args = getopt.gnu_getopt(sys_args, "vsl:c:j:h:e:p:", ["verbose", "stdin", "inline-csv=", "csv=", "json=", "html=", "email=", "password="])
 		
 		# take the first non-optional argument as the command name
 		command = non_opts_args.pop(0)
@@ -24,15 +24,13 @@ def get_input_data(sys_args):
 					
 		# default optional arguments
 		input_type = "stdin"
+		html_output = "file" #for search
 		verbose = False
 		fb_email = ""
 		fb_password = ""
 				
 		for option, arg in opts:
-			if option in ("-h", "--help"):
-				print "help needed"
-				# TODO
-			elif option in ("-v", "--verbose"):
+			if option in ("-v", "--verbose"):
 				verbose = True
 			elif option in ("-s", "--stdin"):
 				pass
@@ -45,6 +43,10 @@ def get_input_data(sys_args):
 					for json_object in json.load(json_input):
 						input_data.append(json_object['name'])
 						#TODO : handle other input fields
+			elif option in ("-h", "--html"):
+				html_output = arg
+				if html_output not in ["raw", "file"]:
+					assert False, "unhandled output : " + html_output
 			elif option in ("-c", "--csv"):
 				input_type = "csv"
 				#TODO : loads CSV file
@@ -59,7 +61,7 @@ def get_input_data(sys_args):
 			# reading all (remaining) non-option arguments as strings 
 			# print "remaining non-option arguments : '" + ", ".join(map(str, non_opts_args)) + "'"
 			input_data = non_opts_args
-		return [command, input_data, fb_email, fb_password]
+		return [command, input_data, html_output, fb_email, fb_password]
 	except getopt.GetoptError as err:
 		sys.stderr.write(err)
 		usage()
@@ -93,7 +95,7 @@ def fb_log_browser(browser, fb_email, fb_password):
 		sys.stderr.write("Error : could not login")
 		return False
 
-def search_users_matching(name, browser):
+def search_users_divs_matching(name, browser):
 	encoded_name = quote(name, safe='')
 	#print encoded_name
 	try:
@@ -107,36 +109,26 @@ def search_users_matching(name, browser):
 		sys.stderr.write("Error while searching for users matching : " + name)
 		return None
 
+def save_html_div(html_div, dir_prefix, filename_base, filename_index):
+	html_filename = dir_prefix + "/" + quote(filename_base, safe='') + "-" + str(filename_index) + ".html"
+	if not os.path.exists(os.path.dirname(html_filename)):
+		try:
+			os.makedirs(os.path.dirname(html_filename))
+		except OSError as exc: # Guard against race condition
+			if exc.errno != errno.EEXIST:
+				raise
+	with open(html_filename, 'wb+') as html_file:
+		html_file.write(str(html_div))
+	return html_filename
+	
 def output_result(results):
-	results_type = "searched_user"
-	results_data = "matching_users_divs"
-	results_files = "matching_users_divs_files"
-	#TODO : use generic key names
-	for result in results:
-		result[results_files] = []
-		html_results = result[results_data]
-		for i, html_result in enumerate(html_results):
-			# Write HTML to file
-			html_result_filename= "output/" + quote(result[results_type], safe='') + "-" + str(i) + ".html"
-			if not os.path.exists(os.path.dirname(html_result_filename)):
-				try:
-					os.makedirs(os.path.dirname(html_result_filename))
-				except OSError as exc: # Guard against race condition
-					if exc.errno != errno.EEXIST:
-						raise
-			with open(html_result_filename, 'wb+') as html_result_file:
-				html_result_file.write(str(html_result))
-			# Add filename to results array
-			result[results_files].append(html_result_filename)
-		# Remove raw HTML from results
-		result.pop(results_data, None)
 	# Print results array to stdout
 	print json.dumps(results) #, ensure_ascii=False, encoding="utf-8"
 
 if __name__ == '__main__':
 
 	# 0. Get input data (strings, JSON file or csv file)
-	command, inputData, fbEmail, fbPassword = get_input_data(sys.argv[1:])
+	command, inputData, htmlOutput, fbEmail, fbPassword = get_input_data(sys.argv[1:])
 	
 	# 1. Setup the scraper browser
 	fbBrowser = robobrowser.RoboBrowser(parser="html.parser")
@@ -182,10 +174,16 @@ if __name__ == '__main__':
 	if command == "search":
 		# print "searching..."
 		for searchedName in inputData:
-			matchingUsersDivs = search_users_matching(searchedName, fbBrowser)
-			searched_result = { "searched_user" : searchedName, "matching_users_divs" : matchingUsersDivs}
-			results.append(searched_result)
-		
+			matchingUsersHtmlDivsRaw = search_users_divs_matching(searchedName, fbBrowser)
+			if htmlOutput is "file":
+				matchingUsersHtmlDivsFilenames = []
+				for index, matchingUserHtmlDivRaw in enumerate(matchingUsersHtmlDivsRaw):
+					matchingUsersHtmlDivFilename = save_html_div(matchingUserHtmlDivRaw, "output", searchedName, index)
+					matchingUsersHtmlDivsFilenames.append(matchingUsersHtmlDivFilename)
+				searchedResult = { "searched_user" : searchedName, "matching_users_divs_filenames" : matchingUsersHtmlDivsFilenames}
+			else:
+				searchedResult = { "searched_user" : searchedName, "matching_users_divs" : matchingUsersHtmlDivsRaw}
+			results.append(searchedResult)
 	elif command is "like":
 		#TODO
 		print "batch like not implemented yet"

@@ -83,6 +83,8 @@ On first connection `facebook-batch` needs your credentials (for next connection
 [{"searched_user": "John Doe", "matching_users_divs_files": ["output/John%20Doe-0.html", "output/John%20Doe-1.html", "output/John%20Doe-2.html", "output/John%20Doe-3.html", "output/John%20Doe-4.html", "output/John%20Doe-5.html", "output/John%20Doe-6.html", "output/John%20Doe-7.html", "output/John%20Doe-8.html", "output/John%20Doe-9.html"]}, {"searched_user": "John Smith", "matching_users_divs_files": ["output/John%20Smith-0.html", "output/John%20Smith-1.html", "output/John%20Smith-2.html", "output/John%20Smith-3.html", "output/John%20Smith-4.html", "output/John%20Smith-5.html", "output/John%20Smith-6.html", "output/John%20Smith-7.html", "output/John%20Smith-8.html", "output/John%20Smith-9.html"]}]
 ```
 
+*You can also output the raw HTML instead of the filenames with the `html` option : `facebook-batch.py search "John Doe" "John Smith" --html=raw`*
+
 This is useless as such unless you parse it to get actual data from it. The output can be parsed with `facebook-scrap.py` thanks to a handy `pipe-mapper.py` script which maps the output of `facebook-bash.py` to the input of `facebook-scrap.py` :
 
 `python facebook-batch.py search "John Doe" "John Smith" --email="your.email@example.com" --password="xxxxxxxx" | python pipe-mapper.py -o facebook-scrap.py -c user-search` : 

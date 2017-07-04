@@ -20,7 +20,7 @@ def get_input_data(sys_args):
 		
 		# keys
 		mapping_name_key = "searched_user"
-		mapping_data_key = "matching_users_divs_files"
+		mapping_data_key = "matching_users_divs_filenames"
 		mapping_parsed_key = "matching_users_attributes"
 		#TODO : use generic keys
 		
