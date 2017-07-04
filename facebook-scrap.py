@@ -5,6 +5,7 @@ import os
 import re
 import bs4
 import json
+from commonutils import output_result
 
 def get_input_data(sys_args):
 	input_data = []
@@ -98,19 +99,7 @@ def scrap_user_attributes(user_div_html):
 		pass
 	return user_attributes
 
-def output_result(output_type, results):
-	if output_type == "stdout":
-		print json.dumps(results)
-	elif output_type == "pretty":
-		print json.dumps(results, indent=4, sort_keys=True, ensure_ascii=False, encoding="utf-8")
-	elif output_type == "json":
-		with open("output.json", 'w+') as output_file:
-			json.dump(results, output_file)
-	elif output_type == "csv":
-		#TODO : write to CSV file
-		pass
-	else:
-		assert False, "unhandled output type : " + output_type
+
 		
 if __name__ == '__main__':
 
@@ -137,6 +126,6 @@ if __name__ == '__main__':
 		print "profile scraping not implemented yet"
 
 	# 2. Output the results in desired format
-	output_result(outputType, results)
+	output_result(results, outputType)
 	
 

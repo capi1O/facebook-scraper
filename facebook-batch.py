@@ -9,6 +9,7 @@ import pickle
 import robobrowser
 from urllib import quote
 import re
+from commonutils import output_result
 
 def get_input_data(sys_args):
 	input_data = []
@@ -120,10 +121,6 @@ def save_html_div(html_div, dir_prefix, filename_base, filename_index):
 	with open(html_filename, 'wb+') as html_file:
 		html_file.write(str(html_div))
 	return html_filename
-	
-def output_result(results):
-	# Print results array to stdout
-	print json.dumps(results) #, ensure_ascii=False, encoding="utf-8"
 
 if __name__ == '__main__':
 
@@ -192,7 +189,7 @@ if __name__ == '__main__':
 		print "batch message not implemented yet"
 		
 	# 4. Output result in desired format
-	output_result(results)
+	output_result(results, "stdout")
 
 
 
