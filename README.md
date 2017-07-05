@@ -87,7 +87,7 @@ On first connection `facebook-batch` needs your credentials (for next connection
 
 This is useless as such unless you parse it to get actual data from it. The output can be parsed with `facebook-scrap.py` thanks to a handy `pipe-mapper.py` script which maps the output of `facebook-bash.py` to the input of `facebook-scrap.py` :
 
-`python facebook-batch.py search "John Doe" "John Smith" --email="your.email@example.com" --password="xxxxxxxx" | python pipe-mapper.py -o facebook-scrap.py -c user-search` : 
+`facebook-batch.py search "John Doe" "John Smith" --email="your.email@example.com" --password="xxxxxxxx" | pipe-mapper.py map facebook-scrap.py -c user-search` : 
 
 ```
 [
@@ -220,6 +220,9 @@ This is useless as such unless you parse it to get actual data from it. The outp
 - https://stackoverflow.com/questions/11806559/removing-first-x-characters-from-string
 - https://stackoverflow.com/questions/13710631/is-there-shorthand-for-returning-a-default-value-if-none-in-python
 - https://stackoverflow.com/questions/5980042/how-to-implement-the-verbose-or-v-option-into-a-script
+- https://stackoverflow.com/questions/930397/getting-the-last-element-of-a-list-in-python
+- https://stackoverflow.com/questions/17658512/how-to-pipe-input-to-python-line-by-line-from-linux-program
+- https://stackoverflow.com/questions/29781610/identifying-end-of-stream-while-reading-from-stdin
 
 # Code
 

@@ -4,41 +4,63 @@ import os
 import json, sys
 from commonutils import verbose_print, parse_arguments, output_result
 
-if __name__ == '__main__':
-	# 0.A. Get results from stdin as a python array
+def get_last_line(output):
+	last_line = output.readline()
+	for line in output:
+		print(line) # will print if input script has -v option set
+		last_line = line
+	return last_line
+
+def decode_json(json_line):
 	try:
-		inputData = json.loads(sys.stdin.readline())
+		return json.loads(json_line)
 	except ValueError as value_error:
-		sys.stderr.write("Error : incorrect input, could not decode JSON"), value_error
+		sys.stderr.write("Error : could not decode JSON from line : " + json_line), value_error
 		sys.exit(2)
-	# 0.B. Parse command line options and arguments
-	command, optionsDict, remainingArguments = parse_arguments(["map"], ["v","h"], ["verbose","help"], ["o","c"], ["output","command"])
-	# 0C. Grab option values or use default if none provided
-	helpOpt = optionsDict.get("help", False)
-	# jsonInput = optionsDict["json"] : None
-	outputScript = optionsDict.get("output", "facebook-scrap.py")
-	outputScriptCommand = optionsDict.get("command", "user-search")
-	# keys
-	mappingNameKey = optionsDict.get("mapping_name_key", "searched_user")
-	mappingDataKey = optionsDict.get("mapping_data_key", "matching_users_divs_filenames")
-	mappingParsedKey = optionsDict.get("mapping_parsed_key", "matching_users_attributes")
+
+if __name__ == '__main__':
 	
-	# 1A. Execute script for each one of the items in the array dict of each item of the input
-	if command is "map":
-		verbose_print("mapping input to " + outputScript + "...")
-		for searchedItemResults in inputData:
-			# get the name
-			searchedItemName = searchedItemResults[mappingNameKey]
-			# get the HTML files macthing this user
-			searchedItemHtmlResults = searchedItemResults[mappingDataKey]
-			# create the command to run the python script by flattening the array - scrap data from this HTML block
-			python_command = "python " + outputScript + " " + outputScriptCommand + " -o stdout " + " ".join(map(str, searchedItemHtmlResults))
-			# run the command get the data
-			searchedItemParsedResults = os.popen(python_command).read()
-			# add parsed data to results dictionnary
-			searchedItemResults[mappingParsedKey] = json.loads(searchedItemParsedResults)
-			# removes HTML files from the results dictionnary
-			searchedItemResults.pop(mappingDataKey, None)
+	# 1. Get output from piped script from stdin
+	lastInputLine = get_last_line(sys.stdin)
+	inputData = decode_json(lastInputLine)
 	
-	# 2. Output results
+	# 2. Parse command line options and arguments (script to call is all non-opt arguments)
+	command, optionsDict, remainingArguments = parse_arguments(["map"], ["v","h"], ["verbose","help"], ["o",], ["output",]) # handle all facebook-scrap.py options
+	outputScriptCall = " ".join(remainingArguments)
+	
+	# 3. Set output to stdout so it can be processed
+	outputScriptCall += " --output=stdout"
+	
+	# 4. Grab option values and pass them to output script (override any specified output for the output script)
+	for long_opt, arg in optionsDict.iteritems():
+		if long_opt != "output":
+			if type(arg) == type(True):
+				if arg:
+					outputScriptCall += " --" + long_opt
+			else:
+				outputScriptCall += " --" + long_opt + "=" + arg
+	
+	# 5. Execute script for each one of the items in the array dict of each item of the input
+	verbose_print("mapping input to " + outputScriptCall + "...")
+	# TODO : use generic mapping
+	mappingNameKey = "searched_user"
+	mappingDataKey = "matching_users_divs_filenames"
+	mappingParsedKey = "matching_users_attributes"
+	for searchedItemResults in inputData:
+		# get the name
+		searchedItemName = searchedItemResults[mappingNameKey]
+		# get the HTML files macthing this user
+		searchedItemHtmlResults = searchedItemResults[mappingDataKey]
+		# create the command to run the python script by flattening the array - scrap data from this HTML block
+		python_command = "python " + outputScriptCall + " " + " ".join(map(str, searchedItemHtmlResults))
+		# run the command get the data
+		# searchedItemParsedResults = os.popen(python_command).readlines()
+		searchedItemParsedResults = get_last_line(os.popen(python_command))
+		# add parsed data to results dictionnary
+		# searchedItemResults[mappingParsedKey] = json.loads(searchedItemParsedResults)
+		searchedItemResults[mappingParsedKey] = decode_json(searchedItemParsedResults)
+		# removes HTML files from the results dictionnary
+		searchedItemResults.pop(mappingDataKey, None)
+	
+	# 6. Output results
 	output_result(inputData, "pretty")
