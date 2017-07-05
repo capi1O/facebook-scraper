@@ -57,7 +57,7 @@ def parse_arguments(available_commands, short_non_arg_options_dict, long_non_arg
 			if option in map(lambda x: "-" + x, short_non_arg_options_dict):
 				option_name = long_non_arg_options_dict[short_non_arg_options_dict.index(option[1:])] #map(lambda x: "-" + x, short_non_arg_options_dict)
 				options_dict[option_name] = True
-			elif option in  map(lambda x: "--" + x, long_non_arg_options_dict):
+			elif option in map(lambda x: "--" + x, long_non_arg_options_dict):
 				option_name = option[2:]
 				options_dict[option_name] = True
 			# 3B. Arg options
@@ -65,7 +65,7 @@ def parse_arguments(available_commands, short_non_arg_options_dict, long_non_arg
 				option_name = long_arg_options_dict[short_arg_options_dict.index(option[1:])]
 				options_dict[option_name] = arg
 				#TODO : check if option value is valid
-			elif option in  map(lambda x: "--" + x, long_arg_options_dict):
+			elif option in map(lambda x: "--" + x, long_arg_options_dict):
 				option_name = option[2:]
 				options_dict[option_name] = arg
 				#TODO : check if option value is valid
@@ -77,6 +77,6 @@ def parse_arguments(available_commands, short_non_arg_options_dict, long_non_arg
 		# 4. Return 
 		return [command, options_dict, non_opts_args] #non_opts_args are the remaining arguments
 	except getopt.GetoptError as err:
-		sys.stderr.write(err)
-		usage()
+		sys.stderr.write(str(err))
+		# usage()
 		sys.exit(2)
