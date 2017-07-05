@@ -24,20 +24,21 @@ if __name__ == '__main__':
 	mappingDataKey = optionsDict.get("mapping_data_key", "matching_users_divs_filenames")
 	mappingParsedKey = optionsDict.get("mapping_parsed_key", "matching_users_attributes")
 	
-	# 1. Get output script name
-	for searchedItemResults in inputData:
-		# get the name
-		searchedItemName = searchedItemResults[mappingNameKey]
-		# get the HTML files macthing this user
-		searchedItemHtmlResults = searchedItemResults[mappingDataKey]
-		# create the command to run the python script by flattening the array - scrap data from this HTML block
-		python_command = "python " + outputScript + " " + outputScriptCommand + " -o stdout " + " ".join(map(str, searchedItemHtmlResults))
-		# run the command get the data
-		searchedItemParsedResults = os.popen(python_command).read()
-		# add parsed data to results dictionnary
-		searchedItemResults[mappingParsedKey] = json.loads(searchedItemParsedResults)
-		# removes HTML files from the results dictionnary
-		searchedItemResults.pop(mappingDataKey, None)
+	# 1A. Execute script for each one of the items in the array dict of each item of the input
+	if command is "map":
+		for searchedItemResults in inputData:
+			# get the name
+			searchedItemName = searchedItemResults[mappingNameKey]
+			# get the HTML files macthing this user
+			searchedItemHtmlResults = searchedItemResults[mappingDataKey]
+			# create the command to run the python script by flattening the array - scrap data from this HTML block
+			python_command = "python " + outputScript + " " + outputScriptCommand + " -o stdout " + " ".join(map(str, searchedItemHtmlResults))
+			# run the command get the data
+			searchedItemParsedResults = os.popen(python_command).read()
+			# add parsed data to results dictionnary
+			searchedItemResults[mappingParsedKey] = json.loads(searchedItemParsedResults)
+			# removes HTML files from the results dictionnary
+			searchedItemResults.pop(mappingDataKey, None)
 	
 	# 2. Output results
 	output_result(inputData, "pretty")
