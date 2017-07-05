@@ -4,7 +4,7 @@ import os
 import re
 import bs4
 import json
-from commonutils import verbose_print, parse_arguments, output_result
+from commonutils import verbose_print, parse_arguments, get_input_data, output_result
 
 def scrap_user_attributes(user_div_html):
 	# 0. Get the HTML data as soup
@@ -58,28 +58,21 @@ def scrap_user_attributes(user_div_html):
 if __name__ == '__main__':
 
 	# 0A. Parse command line options and arguments
-	command, optionsDict, remainingArguments = parse_arguments(["user-search", "profile", "page"], ["v","h"], ["verbose","help"], ["o"], ["output"])
+	command, optionsDict, remainingArguments = parse_arguments(["user-search", "profile", "page"], ["v","h"], ["verbose","help"], ["i","o"], ["input","output"])
 	# 0B. Grab option values or use default if none provided
-	inputType = optionsDict.get("input", "stdin")
+	inputType = optionsDict.get("input", "html")
+	# TODO : verify if input is acceptable : raw, html, url, json or csv
 	outputType = optionsDict.get("output", "stdout")
-	# print "output_type : '" + output_type + "'"
-	# if output_type not in ["stdout", "json", "csv"]:
-	# 	assert False, "unhandled output : " + output_type
-	# 0C. Get input data (from stdin)
-	inputData = remainingArguments #if inputType = "stdin"
+	# TODO : verify if output is acceptable : "stdout", "json", "csv"
+	# 0C. Get input data (from stdin or command line arguments)
+	inputData = get_input_data(inputType, remainingArguments)
 
 	results = []
 	# 1A. Extract the attributes (FB id, name, customized URL and profile picture) for every HTML user data
 	if command == "user-search":
-		for htmlFileName in inputData:
-			if os.path.exists(htmlFileName):
-				with open(htmlFileName, 'r') as htmlFile:
-					try:
-						userAttributes = scrap_user_attributes(htmlFile.read())
-						results.append(userAttributes)
-					except EOFError:
-						sys.stderr.write("error while reading file '" + htmlFileName + "'")
-						pass
+		for user_search_html in inputData:
+			userAttributes = scrap_user_attributes(user_search_html)
+			results.append(userAttributes)
 	elif command is "profile scraping ":
 		#TODO
 		print "profile scraping not implemented yet"
