@@ -2,7 +2,7 @@
 
 import os
 import json, sys
-from commonutils import parse_arguments, output_result
+from commonutils import verbose_print, parse_arguments, output_result
 
 if __name__ == '__main__':
 	# 0.A. Get results from stdin as a python array
@@ -14,7 +14,6 @@ if __name__ == '__main__':
 	# 0.B. Parse command line options and arguments
 	command, optionsDict, remainingArguments = parse_arguments(["map"], ["v","h"], ["verbose","help"], ["o","c"], ["output","command"])
 	# 0C. Grab option values or use default if none provided
-	verbose = optionsDict.get("verbose", False)
 	helpOpt = optionsDict.get("help", False)
 	# jsonInput = optionsDict["json"] : None
 	outputScript = optionsDict.get("output", "facebook-scrap.py")
@@ -26,6 +25,7 @@ if __name__ == '__main__':
 	
 	# 1A. Execute script for each one of the items in the array dict of each item of the input
 	if command is "map":
+		verbose_print("mapping input to " + outputScript + "...")
 		for searchedItemResults in inputData:
 			# get the name
 			searchedItemName = searchedItemResults[mappingNameKey]

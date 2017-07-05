@@ -218,6 +218,8 @@ This is useless as such unless you parse it to get actual data from it. The outp
 - https://stackoverflow.com/questions/3503879/assign-output-of-os-system-to-a-variable-and-prevent-it-from-being-displayed-on 
 - https://stackoverflow.com/questions/24814024/python-default-dict-keys-to-avoid-keyerror
 - https://stackoverflow.com/questions/11806559/removing-first-x-characters-from-string
+- https://stackoverflow.com/questions/13710631/is-there-shorthand-for-returning-a-default-value-if-none-in-python
+- https://stackoverflow.com/questions/5980042/how-to-implement-the-verbose-or-v-option-into-a-script
 
 # Code
 

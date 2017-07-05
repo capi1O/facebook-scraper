@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+verbose = False
+def verbose_print(*args):
+	if verbose :
+		# Print each argument separately
+		for arg in args:
+			print arg,
+		print
+	else:
+		pass	# do nothing
+
 import json
 
 def output_result(results, output_type):
@@ -61,6 +71,9 @@ def parse_arguments(available_commands, short_non_arg_options_dict, long_non_arg
 				#TODO : check if option value is valid
 			else:
 				assert False, "unhandled option : " + option
+		# Set verbose
+		global verbose
+		verbose = options_dict.get("verbose", False)
 		# 4. Return 
 		return [command, options_dict, non_opts_args] #non_opts_args are the remaining arguments
 	except getopt.GetoptError as err:

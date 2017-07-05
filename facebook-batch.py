@@ -8,7 +8,7 @@ import pickle
 import robobrowser
 from urllib import quote
 import re
-from commonutils import parse_arguments, output_result
+from commonutils import verbose_print, parse_arguments, output_result
 
 def get_fb_cookies():
 	# Check if user token from previous session
@@ -40,7 +40,7 @@ def fb_log_browser(browser, fb_email, fb_password):
 
 def search_users_divs_matching(name, browser):
 	encoded_name = quote(name, safe='')
-	#print encoded_name
+	verbose_print(encoded_name)
 	try:
 		url = 'https://m.facebook.com/search/people/?q=' + encoded_name + '&tsid&source=filter&isTrending=0'
 		browser.open(url)
@@ -69,7 +69,6 @@ if __name__ == '__main__':
 	# 0A. Parse command line options and arguments
 	command, optionsDict, remainingArguments = parse_arguments(["search","like","message"], ["v","s"], ["verbose","stdin"], ["l","c","j","h","e","p"], ["inline-csv","csv","json","html","email","password"])
 	# 0B. Grab option values or use default if none provided
-	verbose = optionsDict.get("verbose", False)
 	stdInput = optionsDict.get("stdin", False)
 	inlineCsv = optionsDict.get("inline-csv", None)
 	jsonInput = optionsDict.get("json", None)
@@ -93,7 +92,7 @@ if __name__ == '__main__':
 		inputData = []
 		#TODO : loads CSV file
 	else: #if stdInput:
-		# print "reading all (remaining) non-option arguments : '" + ", ".join(map(str, remainingArguments)) + "' as input"
+		verbose_print("reading all (remaining) non-option arguments : '" + ", ".join(map(str, remainingArguments)) + "' as input")
 		inputData = remainingArguments
 	
 	# 1. Setup the scraper browser
@@ -103,7 +102,7 @@ if __name__ == '__main__':
 	# 2A. Try to reuse cookies (if any) from previous session
 	fbCookies = get_fb_cookies()
 	if fbCookies:
-		# print "Cookies found, no need to log in"
+		verbose_print("Cookies found, no need to log in")
 		fbBrowser.session.cookies = fbCookies
 		#TODO : check if valid
 		logged_in = True
@@ -138,7 +137,7 @@ if __name__ == '__main__':
 	results = []
 	# 3A. Find matching Facebook users for each name provided
 	if command == "search":
-		# print "searching..."
+		verbose_print("searching...")
 		for searchedName in inputData:
 			matchingUsersHtmlDivsRaw = search_users_divs_matching(searchedName, fbBrowser)
 			if htmlOutput is "file":
@@ -159,9 +158,3 @@ if __name__ == '__main__':
 		
 	# 4. Output result in desired format
 	output_result(results, "stdout")
-
-
-
-
-
-

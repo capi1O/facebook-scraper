@@ -4,8 +4,8 @@ import os
 import re
 import bs4
 import json
-from commonutils import parse_arguments, output_result
-		
+from commonutils import verbose_print, parse_arguments, output_result
+
 def scrap_user_attributes(user_div_html):
 	# 0. Get the HTML data as soup
 	user_div = bs4.BeautifulSoup(user_div_html, "html.parser").find("div")
@@ -22,8 +22,7 @@ def scrap_user_attributes(user_div_html):
 		try:
 			fb_customized_url = re.search(fb_customized_url_match_string, href_value, flags=re.DOTALL).group(0)
 		except AttributeError:
-			# sys.stderr.write("URL is not customized")
-			pass
+			verbose_print("URL for Facebook user" + fb_uid + "is not customized")
 	# 3. Get the FB name
 	i_matches = user_div.find_all("i")
 	for i_match in i_matches:
@@ -56,14 +55,11 @@ def scrap_user_attributes(user_div_html):
 		pass
 	return user_attributes
 
-
-		
 if __name__ == '__main__':
 
 	# 0A. Parse command line options and arguments
 	command, optionsDict, remainingArguments = parse_arguments(["user-search", "profile", "page"], ["v","h"], ["verbose","help"], ["o"], ["output"])
 	# 0B. Grab option values or use default if none provided
-	verbose = optionsDict.get("verbose", False)
 	inputType = optionsDict.get("input", "stdin")
 	outputType =  optionsDict.get("output", "stdout")
 	# print "output_type : '" + output_type + "'"
@@ -93,5 +89,3 @@ if __name__ == '__main__':
 
 	# 2. Output the results in desired format
 	output_result(results, outputType)
-	
-
