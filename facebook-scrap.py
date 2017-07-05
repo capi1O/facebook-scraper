@@ -1,53 +1,10 @@
 #!/usr/bin/env python
 
-import getopt, sys
 import os
 import re
 import bs4
 import json
-from commonutils import output_result
-
-def get_input_data(sys_args):
-	input_data = []
-	try:
-		opts, non_opts_args = getopt.gnu_getopt(sys_args, "hvo:", ["help", "verbose", "output="])
-		
-		# take the first non-optional argument as the command name
-		command = non_opts_args.pop(0)
-		#TODO : handle error if 0 non-optional argument
-		# print "command : '" + command + "'"
-		if command not in ["user-search", "profile", "page"]:
-			assert False, "unhandled command : " + command
-					
-		# default optional arguments
-		verbose = False
-		input_type = "stdin"
-		output_type = "stdout"
-		
-		for option, arg in opts:
-			if option in ("-h", "--help"):
-				print "help needed"
-				# TODO
-			elif option in ("-v", "--verbose"):
-				verbose = True
-			elif option in ("-o", "--output"):
-				output_type = arg
-				# print "output_type : '" + output_type + "'"
-				if output_type not in ["stdout", "json", "csv"]:
-					assert False, "unhandled output : " + output_type
-			else:
-				assert False, "unhandled option : " + option
-
-		if input_type is "stdin":
-			# reading all (remaining) non-option arguments as strings 
-			# print "remaining non-option arguments : '" + ", ".join(map(str, non_opts_args)) + "'"
-			input_data = non_opts_args
-		return [command, input_data, output_type]
-	except getopt.GetoptError as err:
-		sys.stderr.write(err)
-		usage()
-		sys.exit(2)
-		
+from commonutils import parse_arguments, output_result
 		
 def scrap_user_attributes(user_div_html):
 	# 0. Get the HTML data as soup
@@ -103,9 +60,18 @@ def scrap_user_attributes(user_div_html):
 		
 if __name__ == '__main__':
 
-	# 0. Get input data (from stdin)
-	command, inputData, outputType = get_input_data(sys.argv[1:])
-	
+	# 0A. Parse command line options and arguments
+	command, optionsDict, remainingArguments = parse_arguments(["user-search", "profile", "page"], ["v","h"], ["verbose","help"], ["o"], ["output"])
+	# 0B. Grab option values or use default if none provided
+	verbose = optionsDict.get("verbose", False)
+	inputType = optionsDict.get("input", "stdin")
+	outputType =  optionsDict.get("output", "stdout")
+	# print "output_type : '" + output_type + "'"
+	# if output_type not in ["stdout", "json", "csv"]:
+	# 	assert False, "unhandled output : " + output_type
+	# 0C. Get input data (from stdin)
+	inputData = remainingArguments #if inputType = "stdin"
+
 	results = []
 	# 1A. Extract the attributes (FB id, name, customized URL and profile picture) for every HTML user data
 	if command == "user-search":

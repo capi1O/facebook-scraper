@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import json
-import getopt, sys
 import os
 import errno
 import urlparse
@@ -9,64 +8,7 @@ import pickle
 import robobrowser
 from urllib import quote
 import re
-from commonutils import output_result
-
-def get_input_data(sys_args):
-	input_data = []
-	try:
-		opts, non_opts_args = getopt.gnu_getopt(sys_args, "vsl:c:j:h:e:p:", ["verbose", "stdin", "inline-csv=", "csv=", "json=", "html=", "email=", "password="])
-		
-		# take the first non-optional argument as the command name
-		command = non_opts_args.pop(0)
-		#TODO : handle error if 0 non-optional argument
-		# print command
-		if command not in ["search", "like", "message"]:
-			assert False, "unhandled command : " + command
-					
-		# default optional arguments
-		input_type = "stdin"
-		html_output = "file" #for search
-		verbose = False
-		fb_email = ""
-		fb_password = ""
-				
-		for option, arg in opts:
-			if option in ("-v", "--verbose"):
-				verbose = True
-			elif option in ("-s", "--stdin"):
-				pass
-			elif option in ("-l", "--inline-csv"):
-				input_type = "inline-csv"
-				input_data = arg.split(',')
-			elif option in ("-j", "--json"):
-				input_type = "json"
-				with open(arg) as json_input:
-					for json_object in json.load(json_input):
-						input_data.append(json_object['name'])
-						#TODO : handle other input fields
-			elif option in ("-h", "--html"):
-				html_output = arg
-				if html_output not in ["raw", "file"]:
-					assert False, "unhandled output : " + html_output
-			elif option in ("-c", "--csv"):
-				input_type = "csv"
-				#TODO : loads CSV file
-			elif option in ("-e", "--email"):
-				fb_email = arg
-			elif option in ("-p", "--password"):
-				fb_password = arg
-			else:
-				assert False, "unhandled option : " + option
-				
-		if input_type is "stdin":
-			# reading all (remaining) non-option arguments as strings 
-			# print "remaining non-option arguments : '" + ", ".join(map(str, non_opts_args)) + "'"
-			input_data = non_opts_args
-		return [command, input_data, html_output, fb_email, fb_password]
-	except getopt.GetoptError as err:
-		sys.stderr.write(err)
-		usage()
-		sys.exit(2)
+from commonutils import parse_arguments, output_result
 
 def get_fb_cookies():
 	# Check if user token from previous session
@@ -124,8 +66,35 @@ def save_html_div(html_div, dir_prefix, filename_base, filename_index):
 
 if __name__ == '__main__':
 
-	# 0. Get input data (strings, JSON file or csv file)
-	command, inputData, htmlOutput, fbEmail, fbPassword = get_input_data(sys.argv[1:])
+	# 0A. Parse command line options and arguments
+	command, optionsDict, remainingArguments = parse_arguments(["search","like","message"], ["v","s"], ["verbose","stdin"], ["l","c","j","h","e","p"], ["inline-csv","csv","json","html","email","password"])
+	# 0B. Grab option values or use default if none provided
+	verbose = optionsDict.get("verbose", False)
+	stdInput = optionsDict.get("stdin", False)
+	inlineCsv = optionsDict.get("inline-csv", None)
+	jsonInput = optionsDict.get("json", None)
+	csvInput = optionsDict.get("csv", None)
+	fbEmail = optionsDict.get("email", "")
+	fbPassword = optionsDict.get("password", "")
+	outputType = optionsDict.get("output", "stdout")
+	htmlOutput = optionsDict.get("html", "file") #for search
+	# if htmlOutput not in ["raw", "file"]:
+	# 	assert False, "unhandled output : " + html_output			
+	# 0C. Get input data (from stdin, JSON or CSV)
+	if inlineCsv:
+		inputData = inlineCsv.split(',')
+	elif jsonInput:
+		inputData = []
+		with open(jsonInput) as json_input:
+			for json_object in json.load(json_input):
+				inputData.append(json_object['name'])
+				#TODO : handle all input fields
+	elif csvInput:
+		inputData = []
+		#TODO : loads CSV file
+	else: #if stdInput:
+		# print "reading all (remaining) non-option arguments : '" + ", ".join(map(str, remainingArguments)) + "' as input"
+		inputData = remainingArguments
 	
 	# 1. Setup the scraper browser
 	fbBrowser = robobrowser.RoboBrowser(parser="html.parser")

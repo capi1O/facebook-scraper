@@ -216,6 +216,8 @@ This is useless as such unless you parse it to get actual data from it. The outp
 - https://stackoverflow.com/questions/3781851/run-a-python-script-from-another-python-script-passing-in-args
 - https://stackoverflow.com/questions/1904394/read-only-the-first-line-of-a-file
 - https://stackoverflow.com/questions/3503879/assign-output-of-os-system-to-a-variable-and-prevent-it-from-being-displayed-on 
+- https://stackoverflow.com/questions/24814024/python-default-dict-keys-to-avoid-keyerror
+- https://stackoverflow.com/questions/11806559/removing-first-x-characters-from-string
 
 # Code
 
