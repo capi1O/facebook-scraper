@@ -5,9 +5,12 @@ import json, sys
 from commonutils import parse_arguments, output_result
 
 if __name__ == '__main__':
-		
 	# 0.A. Get results from stdin as a python array
-	inputData = json.loads(sys.stdin.readline())
+	try:
+		inputData = json.loads(sys.stdin.readline())
+	except ValueError as value_error:
+		sys.stderr.write("Error : incorrect input, could not decode JSON"), value_error
+		sys.exit(2)
 	# 0.B. Parse command line options and arguments
 	command, optionsDict, remainingArguments = parse_arguments(["map"], ["v","h"], ["verbose","help"], ["o","c"], ["output","command"])
 	# 0C. Grab option values or use default if none provided
