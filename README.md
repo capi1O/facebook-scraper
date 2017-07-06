@@ -83,7 +83,7 @@ When targeting multiple people it can be useful to quickly get some data about t
 
 ### input = array of elements
 
-`facebook-scrap.py user-search "search-results-array.json"` => scrap user attributes from HTML block of a result from a search on Facebook :
+`facebook-scrap.py user-search "search-results-array.json" -i json` => scrap user attributes from HTML block of a result from a search on Facebook :
 
 ```
 {
@@ -95,7 +95,7 @@ When targeting multiple people it can be useful to quickly get some data about t
 ```
 ### input = dict array of elements
 
-`facebook-scrap.py user-search "search-results-dicts.json" --key="searched_user"` => scrap user attributes from HTML block of a result from a search on Facebook :
+`facebook-scrap.py user-search "search-results-dicts.json" -i json --key="searched_user"` => scrap user attributes from HTML block of a result from a search on Facebook :
 
 ```
 "searched_user": "John Smith",

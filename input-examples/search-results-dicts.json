@@ -3,33 +3,33 @@
 		"searched_user": "John Doe",
 		"matching_users_divs_filenames":
 		[
-			"output/John%20Doe-0.html",
-			"output/John%20Doe-1.html",
-			"output/John%20Doe-2.html",
-			"output/John%20Doe-3.html",
-			"output/John%20Doe-4.html",
-			"output/John%20Doe-5.html",
-			"output/John%20Doe-6.html",
-			"output/John%20Doe-7.html",
-			"output/John%20Doe-8.html",
-			"output/John%20Doe-9.html",
-			"output/John%20Doe-10.html"
+			"input-examples/John%20Doe-0.html",
+			"input-examples/John%20Doe-1.html",
+			"input-examples/John%20Doe-2.html",
+			"input-examples/John%20Doe-3.html",
+			"input-examples/John%20Doe-4.html",
+			"input-examples/John%20Doe-5.html",
+			"input-examples/John%20Doe-6.html",
+			"input-examples/John%20Doe-7.html",
+			"input-examples/John%20Doe-8.html",
+			"input-examples/John%20Doe-9.html",
+			"input-examples/John%20Doe-10.html"
 		]
 	},
 	{
 		"searched_user": "John Smith",
 		"matching_users_divs_filenames":
 		[
-			"output/John%20Smith-0.html",
-			"output/John%20Smith-1.html",
-			"output/John%20Smith-2.html",
-			"output/John%20Smith-3.html",
-			"output/John%20Smith-4.html",
-			"output/John%20Smith-5.html",
-			"output/John%20Smith-6.html",
-			"output/John%20Smith-7.html",
-			"output/John%20Smith-8.html",
-			"output/John%20Smith-9.html"
+			"input-examples/John%20Smith-0.html",
+			"input-examples/John%20Smith-1.html",
+			"input-examples/John%20Smith-2.html",
+			"input-examples/John%20Smith-3.html",
+			"input-examples/John%20Smith-4.html",
+			"input-examples/John%20Smith-5.html",
+			"input-examples/John%20Smith-6.html",
+			"input-examples/John%20Smith-7.html",
+			"input-examples/John%20Smith-8.html",
+			"input-examples/John%20Smith-9.html"
 		]
 	}
 ]

@@ -4,7 +4,7 @@ import os
 import re
 import bs4
 import json
-from commonutils import verbose_print, parse_arguments, get_input_data, output_result
+from commonutils import *
 
 def scrap_user_attributes(user_div_html):
 	verbose_print("parsing " + user_div_html)
@@ -79,15 +79,31 @@ if __name__ == '__main__':
 	inputFormat = optionsDict.get("format", "html")
 	outputFormat = optionsDict.get("output", "raw")
 	# 0C. Get input data (from stdin or command line arguments)
-	inputData = get_input_data(inputType, inputFormat, remainingArguments)
-
-
-	results = []
+	inputData, groupKeys = get_input_data(inputType, inputFormat, remainingArguments, "searched_user", "matching_users_divs_filenames")
+	array_dim = get_array_dim(inputData)
+	# 1. Perform command (for every item in input data)
 	# 1A. Extract the attributes (FB id, name, customized URL and profile picture) for every HTML user data
 	if command == "user-search":
-		for user_search_html in inputData:
-			userAttributes = scrap_user_attributes(user_search_html)
-			results.append(userAttributes)
+		results = []
+		# Single dim array
+		if array_dim == 1:
+			if get_array_type(inputData) != str:
+				assert False, "invalid data of type" + get_array_type(inputData) +"contained in array : " + str(inputData)
+			verbose_print("loaded " + str(len(inputData)) + " data blocks")
+			results = map(scrap_user_attributes, inputData)
+			# results = map(lambda x : scrap_user_attributes(x) , inputData)
+		# Doule-dim array - map
+		elif array_dim == 2:
+			# Check if number of grouped data blocks matches the number of group keys
+			if len(inputData) != len(groupKeys) > 0:
+				assert False, "mismatch between number of grouped data blocks matches : " + str(len(inputData)) + " and number of group keys : " + str(len(groupKeys))
+			if get_array_type(inputData[0]) != str:
+				assert False, "invalid data of type" + get_array_type(inputData[0]) +"contained in array : " + str(inputData)
+				# TODO : check all sub-arrays
+			results = map(lambda x : map(scrap_user_attributes, x), inputData)
+		else:
+			assert False, "unsupported array dimension : " + str(array_dim)
+						
 	elif command is "profile scraping ":
 		#TODO
 		print "profile scraping not implemented yet"
@@ -96,4 +112,9 @@ if __name__ == '__main__':
 		print "profile scraping not implemented yet"
 
 	# 2. Output the results in desired format
-	output_result(results, outputFormat)
+	if array_dim == 1:
+		output_results(results, outputFormat)
+	elif array_dim == 2:
+		output_grouped_results(groupKeys, results, outputFormat)
+	else:
+		assert False, "unsupported array dimension : " + str(array_dim)
