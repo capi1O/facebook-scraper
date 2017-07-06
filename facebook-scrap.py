@@ -58,7 +58,7 @@ def scrap_user_attributes(user_div_html):
 
 if __name__ == '__main__':
 
-	# 0A. Parse command line options and arguments
+	# 1. Parse command line options and arguments
 	acceptableNonArgOptions = [ ["v", "verbose"], ["h", "help"] ]
 	inputOptionsDict = {
 		"option_name" : ["i", "input"], 
@@ -74,24 +74,26 @@ if __name__ == '__main__':
 	}
 	acceptableArgOptions = [inputOptionsDict, formatOptionsDict, outputOptionsDict]
 	command, optionsDict, remainingArguments = parse_arguments(["user-search", "profile", "page"], acceptableNonArgOptions, acceptableArgOptions)
-	# 0B. Grab option values or use default if none provided
+	
+	# 2. Grab option values or use default if none provided
 	inputType = optionsDict.get("input", "inline")
 	inputFormat = optionsDict.get("format", "html")
 	outputFormat = optionsDict.get("output", "raw")
-	# 0C. Get input data (from stdin or command line arguments)
+	
+	# 3. Get input data (from stdin or command line arguments)
 	inputData, groupKeys = get_input_data(inputType, inputFormat, remainingArguments, "searched_user", "matching_users_divs_filenames")
 	array_dim = get_array_dim(inputData)
-	# 1. Perform command (for every item in input data)
-	# 1A. Extract the attributes (FB id, name, customized URL and profile picture) for every HTML user data
+	
+	# 4. Perform command (for every item in input data)
+	# 4A. Scrap Facebook search result (extract Facebook UID, name, customized URL and profile picture)
 	if command == "user-search":
 		results = []
 		# Single dim array
 		if array_dim == 1:
 			if get_array_type(inputData) != str:
-				assert False, "invalid data of type" + get_array_type(inputData) +"contained in array : " + str(inputData)
+				assert False, "invalid data of type" + get_array_type(inputData) + " contained in array : " + str(inputData)
 			verbose_print("loaded " + str(len(inputData)) + " data blocks")
-			results = map(scrap_user_attributes, inputData)
-			# results = map(lambda x : scrap_user_attributes(x) , inputData)
+			results = super_map(inputData, scrap_user_attributes)
 		# Doule-dim array - map
 		elif array_dim == 2:
 			# Check if number of grouped data blocks matches the number of group keys
@@ -100,18 +102,20 @@ if __name__ == '__main__':
 			if get_array_type(inputData[0]) != str:
 				assert False, "invalid data of type" + get_array_type(inputData[0]) +"contained in array : " + str(inputData)
 				# TODO : check all sub-arrays
-			results = map(lambda x : map(scrap_user_attributes, x), inputData)
+			# results = super_map(inputData, lambda x : map(scrap_user_attributes, x))
+			results = super_submap(inputData, scrap_user_attributes)
 		else:
 			assert False, "unsupported array dimension : " + str(array_dim)
-						
-	elif command is "profile scraping ":
+	# 4B. scrap Facebook profile
+	elif command is "profile":
 		#TODO
 		print "profile scraping not implemented yet"
+	# 4C. scrap Facebook page
 	elif command is "page":
 		#TODO
 		print "profile scraping not implemented yet"
 
-	# 2. Output the results in desired format
+	# 5. Output the results in desired format
 	if array_dim == 1:
 		output_results(results, outputFormat)
 	elif array_dim == 2:

@@ -129,8 +129,6 @@ When targeting multiple people it can be useful to quickly get some data about t
 			"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c2.0.64.64/p64x64/150981_10151409656362698_1573096695_n.jpg?efg=eyJpIjoibCJ9&oh=5193f524380e9ea12454d77b8a518762&oe=5A0894A2"
 	}
 ]
-}
-]
 ```
 
 ## Specify output (JSON to console, JSON file or CSV file)
