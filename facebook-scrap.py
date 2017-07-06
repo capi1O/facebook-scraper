@@ -7,6 +7,7 @@ import json
 from commonutils import verbose_print, parse_arguments, get_input_data, output_result
 
 def scrap_user_attributes(user_div_html):
+	verbose_print("parsing " + user_div_html)
 	# 0. Get the HTML data as soup
 	user_div = bs4.BeautifulSoup(user_div_html, "html.parser").find("div")
 	# 1. Get the FB UID
@@ -58,14 +59,28 @@ def scrap_user_attributes(user_div_html):
 if __name__ == '__main__':
 
 	# 0A. Parse command line options and arguments
-	command, optionsDict, remainingArguments = parse_arguments(["user-search", "profile", "page"], ["v","h"], ["verbose","help"], ["i","o"], ["input","output"])
+	acceptableNonArgOptions = [ ["v", "verbose"], ["h", "help"] ]
+	inputOptionsDict = {
+		"option_name" : ["i", "input"], 
+		"acceptable_values" : ["inline","inline_json","json","inline_csv","csv"] 
+	}
+	formatOptionsDict = {
+		"option_name" : ["f", "format"], 
+		"acceptable_values" : ["url","inline_html","html"] 
+	}
+	outputOptionsDict = {
+		"option_name" : ["o", "output"], 
+		"acceptable_values" : ["raw","pretty","json","csv"] 
+	}
+	acceptableArgOptions = [inputOptionsDict, formatOptionsDict, outputOptionsDict]
+	command, optionsDict, remainingArguments = parse_arguments(["user-search", "profile", "page"], acceptableNonArgOptions, acceptableArgOptions)
 	# 0B. Grab option values or use default if none provided
-	inputType = optionsDict.get("input", "html")
-	# TODO : verify if input is acceptable : raw, html, url, json or csv
-	outputType = optionsDict.get("output", "stdout")
-	# TODO : verify if output is acceptable : "stdout", "json", "csv"
+	inputType = optionsDict.get("input", "inline")
+	inputFormat = optionsDict.get("format", "html")
+	outputFormat = optionsDict.get("output", "raw")
 	# 0C. Get input data (from stdin or command line arguments)
-	inputData = get_input_data(inputType, remainingArguments)
+	inputData = get_input_data(inputType, inputFormat, remainingArguments)
+
 
 	results = []
 	# 1A. Extract the attributes (FB id, name, customized URL and profile picture) for every HTML user data
@@ -81,4 +96,4 @@ if __name__ == '__main__':
 		print "profile scraping not implemented yet"
 
 	# 2. Output the results in desired format
-	output_result(results, outputType)
+	output_result(results, outputFormat)
