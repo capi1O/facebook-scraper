@@ -6,12 +6,9 @@ When targeting multiple people it can be useful to quickly get some data about t
 
 # Use
 
-- input : URL, HTML file path, raw (escaped) HTML data. 
-- output : JSON to stdout, JSON file or CSV file.
-
 ## Scrap Facebook user attributes from a search result
 
-`./facebook-scrap.py user-search "input/John%20Smith-8.html" "input/John%20Smith-9.html"` => scrap user attributes from HTML block of a result from a search on Facebook :
+`./facebook-scrap.py user-search "input-examples/John%20Smith-8.html" "input-examples/John%20Smith-9.html"` => scrap user attributes from HTML block of a result from a search on Facebook :
 
 ```
 {
@@ -22,9 +19,9 @@ When targeting multiple people it can be useful to quickly get some data about t
 }
 ```
 
-## Scrap Facebook user attributes from Facebook Profile or Facebook Page
+## Scrap Facebook user attributes from Facebook Profile *not implemented yet*
 
-`facebook-scrap.py profile "https://facebook.com/JohnJohn.Doe"` => scrap user attributes from a Facebook profile HTML  *not implemented yet*:
+`./facebook-scrap.py profile "https://facebook.com/JohnJohn.Doe"` => scrap user attributes from a Facebook profile HTML  *not implemented yet*:
 
 ```
 {
@@ -36,9 +33,9 @@ When targeting multiple people it can be useful to quickly get some data about t
 }
 ```
 
-## Scrap Facebook user attributes from Facebook Page
+## Scrap Facebook user attributes from Facebook Page *not implemented yet*
 
-`facebook-scrap.py page "https://facebook.com/TheCocaColaCo" "input/nike-7.html"` => scrap user attributes from a Facebook Page HTML *not implemented yet* :
+`./facebook-scrap.py page "https://facebook.com/TheCocaColaCo" "input-examples/nike-7.html"` => scrap user attributes from a Facebook Page HTML *not implemented yet* :
 
 ```
 {
@@ -57,17 +54,30 @@ When targeting multiple people it can be useful to quickly get some data about t
 }
 ```
 
-## inputs
+# API
 
-**facebook-scraper** input can be a file containing a group of elements to scrap, organized in different ways (see provided example JSON files) :
-- JSON array of elements
-- JSON array of dictionaries containing arrays of elements, so the results are grouped together.
+## command
 
-### input = raw HTML string
+script must be followed by command before any argument.
+
+### `user-search` : scrap user attributes from HTML block of a result from a search on Facebook
+
+### `profile` : scrap Facebook user attributes from Facebook Profile web page *not implemented yet*
+
+### `page` : scrap Facebook user attributes from Facebook Page *not implemented yet*
+
+## `-f` : input format
+
+### `html-file` : html file *(default)*
+
+`./facebook-scrap.py user-search "input-examples/John%20Smith-8.html" -f html-file`
+
+### `raw-html` : raw (escaped) HTML string
 
 ```
-./facebook-scrap.py user-search -o pretty '<div class="_5w3g" data-gt='"'"'{"type":"xtracking","xt":"12.{\"unit_id_click_type\":\"graph_search_results_item_in_module_tapped\",\"click_type\":\"result\",\"module_id\":0,\"result_id\":759052697,\"sid\":\"bbc94eb2ff0132a843b19f786901a7c3\",\"module_role\":\"NONE\",\"unit_id\":\"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1\",\"browse_result_type\":\"browse_type_user\",\"unit_id_result_id\":759052697,\"module_result_position\":9}"}'"'"' data-vistracking="1" data-xt='"'"'12.{"unit_id_click_type":"graph_search_results_item_in_module_tapped","click_type":"result","module_id":0,"result_id":759052697,"sid":"bbc94eb2ff0132a843b19f786901a7c3","module_role":"NONE","unit_id":"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1","browse_result_type":"browse_type_user","unit_id_result_id":759052697,"module_result_position":9}'"'"' data-xt-vimp='"'"'{"pixel_in_percentage":70,"duration_in_ms":2000,"subsequent_gap_in_ms":500,"log_initial_nonviewable":true,"should_batch":true,"require_horizontally_onscreen":false}'"'"'><div class="_4g33 _52we"><div class="_5s61" style="margin-bottom:10px;"><a href="/Dragma?refid=46&amp;__xt__=12.%7B%22unit_id_click_type%22%3A%22graph_search_results_item_in_module_tapped%22%2C%22click_type%22%3A%22result%22%2C%22module_id%22%3A0%2C%22result_id%22%3A759052697%2C%22sid%22%3A%22bbc94eb2ff0132a843b19f786901a7c3%22%2C%22module_role%22%3A%22NONE%22%2C%22unit_id%22%3A%22browse_rl%3A5a1bfc31f6c1becb1ff4f924119b38eb%3Ac1%22%2C%22browse_result_type%22%3A%22browse_type_user%22%2C%22unit_id_result_id%22%3A759052697%2C%22module_result_position%22%3A9%7D"><i aria-label="John Smith" class="img _5w3h profpic" role="img" style='"'"'background:#d8dce6 url("https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c2.0.64.64/p64x64/150981_10151409656362698_1573096695_n.jpg?efg=eyJpIjoibCJ9&amp;oh=5193f524380e9ea12454d77b8a518762&amp;oe=5A0894A2") no-repeat center;background-size:100% 100%;-webkit-background-size:100% 100%;width:64px;height:64px;'"'"'></i></a></div><div class="_4g34"><div class="_10ws"><div class="_2gpa"><div class="_5k8z"><div class="_5tg_"><span class="_5w3i _o9-">John Smith</span></div></div></div><a class="_5w3n" data-sigil="m-graph-search-result-page-click-target" data-store='"'"'{"unit_id_click_type":"graph_search_results_item_in_module_tapped","click_type":"result","module_id":0,"result_id":759052697,"sid":"bbc94eb2ff0132a843b19f786901a7c3","module_role":"NONE","unit_id":"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1","browse_result_type":"browse_type_user","unit_id_result_id":759052697,"module_result_position":9}'"'"' href="/Dragma?refid=46&amp;__xt__=12.%7B%22unit_id_click_type%22%3A%22graph_search_results_item_in_module_tapped%22%2C%22click_type%22%3A%22result%22%2C%22module_id%22%3A0%2C%22result_id%22%3A759052697%2C%22sid%22%3A%22bbc94eb2ff0132a843b19f786901a7c3%22%2C%22module_role%22%3A%22NONE%22%2C%22unit_id%22%3A%22browse_rl%3A5a1bfc31f6c1becb1ff4f924119b38eb%3Ac1%22%2C%22browse_result_type%22%3A%22browse_type_user%22%2C%22unit_id_result_id%22%3A759052697%2C%22module_result_position%22%3A9%7D"></a></div></div><div class="_5s61"><div class="right _71r _4nfz" data-gt='"'"'{"type":"xtracking","xt":"12.{\"unit_id_click_type\":\"inline_friend_request\",\"click_type\":\"result\",\"module_id\":0,\"result_id\":759052697,\"sid\":\"bbc94eb2ff0132a843b19f786901a7c3\",\"module_role\":\"NONE\",\"unit_id\":\"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1\",\"browse_result_type\":\"browse_type_user\",\"unit_id_result_id\":759052697,\"module_result_position\":9}"}'"'"' data-sigil="m-add-friend-secondary m-graph-search-result-page-friend-button m-graph-search-result-page-action-button" data-store='"'"'{"unit_id_click_type":"graph_search_results_item_in_module_tapped","click_type":"result","module_id":0,"result_id":759052697,"sid":"bbc94eb2ff0132a843b19f786901a7c3","module_role":"NONE","unit_id":"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1","browse_result_type":"browse_type_user","unit_id_result_id":759052697,"module_result_position":9}'"'"' data-vistracking="1" data-xt='"'"'12.{"unit_id_click_type":"inline_friend_request","click_type":"result","module_id":0,"result_id":759052697,"sid":"bbc94eb2ff0132a843b19f786901a7c3","module_role":"NONE","unit_id":"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1","browse_result_type":"browse_type_user","unit_id_result_id":759052697,"module_result_position":9}'"'"' data-xt-vimp='"'"'{"pixel_in_percentage":70,"duration_in_ms":2000,"subsequent_gap_in_ms":500,"log_initial_nonviewable":true,"should_batch":true,"require_horizontally_onscreen":false}'"'"' id="u_0_3" style="margin-right: 0px; margin-top: -15px;"><div data-sigil="m-add-friend-flyout"><a aria-label="Add Friend" class="touchable right _41g3" data-sigil="touchable m-add-friend" data-store='"'"'{"hf":"browse","id":759052697,"sc":-1,"so":"pyu","pl":null,"searchlog":null,"et":"","at":"","ed":"","fref":"none","pymk_group_id":null,"el":null,"floc":"","frefs":[]}'"'"' href="/a/mobile/friends/add_friend.php?id=759052697&amp;hf=browse&amp;fref=none&amp;gfid=AQDFXn-mOnFK2lik&amp;refid=46&amp;__xt__=12.%7B%22unit_id_click_type%22%3A%22inline_friend_request%22%2C%22click_type%22%3A%22result%22%2C%22module_id%22%3A0%2C%22result_id%22%3A759052697%2C%22sid%22%3A%22bbc94eb2ff0132a843b19f786901a7c3%22%2C%22module_role%22%3A%22NONE%22%2C%22unit_id%22%3A%22browse_rl%3A5a1bfc31f6c1becb1ff4f924119b38eb%3Ac1%22%2C%22browse_result_type%22%3A%22browse_type_user%22%2C%22unit_id_result_id%22%3A759052697%2C%22module_result_position%22%3A9%7D" role="button"><i class="touched_hide _4iru img sp_THrB2DDAoX4 sx_429dae"></i><i class="_4iru touched_show img sp_THrB2DDAoX4 sx_7e3f0d"></i></a></div><div class="_2so _2sq _2ss img _50ch _5d0w" data-animtype="3" data-sigil="m-loading-indicator-root load" id="u_0_4" style="display:none"><div class="_2sr" data-sigil="m-loading-indicator-animate"></div></div><a aria-label="Undo" class="touchable right _58x3" data-sigil="touchable check m-cancel-request" data-store='"'"'{"id":759052697,"ref_param":"unknown","floc":"","frefs":[]}'"'"' role="button" style="display:none"><i class="touched_hide _4irt img sp_THrB2DDAoX4 sx_644cf7"></i><i class="_4irt touched_show img sp_THrB2DDAoX4 sx_737f51"></i></a></div><iframe class="fbEmuTracking" frameborder="0" height="0" scrolling="no" src="/xti.php?xt=12.%7B%22unit_id_click_type%22%3A%22inline_friend_request%22%2C%22click_type%22%3A%22result%22%2C%22module_id%22%3A0%2C%22result_id%22%3A759052697%2C%22sid%22%3A%22bbc94eb2ff0132a843b19f786901a7c3%22%2C%22module_role%22%3A%22NONE%22%2C%22unit_id%22%3A%22browse_rl%3A5a1bfc31f6c1becb1ff4f924119b38eb%3Ac1%22%2C%22browse_result_type%22%3A%22browse_type_user%22%2C%22unit_id_result_id%22%3A759052697%2C%22module_result_position%22%3A9%7D" width="0"></iframe></div></div></div>' -i raw
+	./facebook-scrap.py user-search -o pretty '<div class="_5w3g" data-gt='"'"'{"type":"xtracking","xt":"12.{\"unit_id_click_type\":\"graph_search_results_item_in_module_tapped\",\"click_type\":\"result\",\"module_id\":0,\"result_id\":759052697,\"sid\":\"bbc94eb2ff0132a843b19f786901a7c3\",\"module_role\":\"NONE\",\"unit_id\":\"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1\",\"browse_result_type\":\"browse_type_user\",\"unit_id_result_id\":759052697,\"module_result_position\":9}"}'"'"' data-vistracking="1" data-xt='"'"'12.{"unit_id_click_type":"graph_search_results_item_in_module_tapped","click_type":"result","module_id":0,"result_id":759052697,"sid":"bbc94eb2ff0132a843b19f786901a7c3","module_role":"NONE","unit_id":"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1","browse_result_type":"browse_type_user","unit_id_result_id":759052697,"module_result_position":9}'"'"' data-xt-vimp='"'"'{"pixel_in_percentage":70,"duration_in_ms":2000,"subsequent_gap_in_ms":500,"log_initial_nonviewable":true,"should_batch":true,"require_horizontally_onscreen":false}'"'"'><div class="_4g33 _52we"><div class="_5s61" style="margin-bottom:10px;"><a href="/Dragma?refid=46&amp;__xt__=12.%7B%22unit_id_click_type%22%3A%22graph_search_results_item_in_module_tapped%22%2C%22click_type%22%3A%22result%22%2C%22module_id%22%3A0%2C%22result_id%22%3A759052697%2C%22sid%22%3A%22bbc94eb2ff0132a843b19f786901a7c3%22%2C%22module_role%22%3A%22NONE%22%2C%22unit_id%22%3A%22browse_rl%3A5a1bfc31f6c1becb1ff4f924119b38eb%3Ac1%22%2C%22browse_result_type%22%3A%22browse_type_user%22%2C%22unit_id_result_id%22%3A759052697%2C%22module_result_position%22%3A9%7D"><i aria-label="John Smith" class="img _5w3h profpic" role="img" style='"'"'background:#d8dce6 url("https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c2.0.64.64/p64x64/150981_10151409656362698_1573096695_n.jpg?efg=eyJpIjoibCJ9&amp;oh=5193f524380e9ea12454d77b8a518762&amp;oe=5A0894A2") no-repeat center;background-size:100% 100%;-webkit-background-size:100% 100%;width:64px;height:64px;'"'"'></i></a></div><div class="_4g34"><div class="_10ws"><div class="_2gpa"><div class="_5k8z"><div class="_5tg_"><span class="_5w3i _o9-">John Smith</span></div></div></div><a class="_5w3n" data-sigil="m-graph-search-result-page-click-target" data-store='"'"'{"unit_id_click_type":"graph_search_results_item_in_module_tapped","click_type":"result","module_id":0,"result_id":759052697,"sid":"bbc94eb2ff0132a843b19f786901a7c3","module_role":"NONE","unit_id":"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1","browse_result_type":"browse_type_user","unit_id_result_id":759052697,"module_result_position":9}'"'"' href="/Dragma?refid=46&amp;__xt__=12.%7B%22unit_id_click_type%22%3A%22graph_search_results_item_in_module_tapped%22%2C%22click_type%22%3A%22result%22%2C%22module_id%22%3A0%2C%22result_id%22%3A759052697%2C%22sid%22%3A%22bbc94eb2ff0132a843b19f786901a7c3%22%2C%22module_role%22%3A%22NONE%22%2C%22unit_id%22%3A%22browse_rl%3A5a1bfc31f6c1becb1ff4f924119b38eb%3Ac1%22%2C%22browse_result_type%22%3A%22browse_type_user%22%2C%22unit_id_result_id%22%3A759052697%2C%22module_result_position%22%3A9%7D"></a></div></div><div class="_5s61"><div class="right _71r _4nfz" data-gt='"'"'{"type":"xtracking","xt":"12.{\"unit_id_click_type\":\"inline_friend_request\",\"click_type\":\"result\",\"module_id\":0,\"result_id\":759052697,\"sid\":\"bbc94eb2ff0132a843b19f786901a7c3\",\"module_role\":\"NONE\",\"unit_id\":\"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1\",\"browse_result_type\":\"browse_type_user\",\"unit_id_result_id\":759052697,\"module_result_position\":9}"}'"'"' data-sigil="m-add-friend-secondary m-graph-search-result-page-friend-button m-graph-search-result-page-action-button" data-store='"'"'{"unit_id_click_type":"graph_search_results_item_in_module_tapped","click_type":"result","module_id":0,"result_id":759052697,"sid":"bbc94eb2ff0132a843b19f786901a7c3","module_role":"NONE","unit_id":"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1","browse_result_type":"browse_type_user","unit_id_result_id":759052697,"module_result_position":9}'"'"' data-vistracking="1" data-xt='"'"'12.{"unit_id_click_type":"inline_friend_request","click_type":"result","module_id":0,"result_id":759052697,"sid":"bbc94eb2ff0132a843b19f786901a7c3","module_role":"NONE","unit_id":"browse_rl:5a1bfc31f6c1becb1ff4f924119b38eb:c1","browse_result_type":"browse_type_user","unit_id_result_id":759052697,"module_result_position":9}'"'"' data-xt-vimp='"'"'{"pixel_in_percentage":70,"duration_in_ms":2000,"subsequent_gap_in_ms":500,"log_initial_nonviewable":true,"should_batch":true,"require_horizontally_onscreen":false}'"'"' id="u_0_3" style="margin-right: 0px; margin-top: -15px;"><div data-sigil="m-add-friend-flyout"><a aria-label="Add Friend" class="touchable right _41g3" data-sigil="touchable m-add-friend" data-store='"'"'{"hf":"browse","id":759052697,"sc":-1,"so":"pyu","pl":null,"searchlog":null,"et":"","at":"","ed":"","fref":"none","pymk_group_id":null,"el":null,"floc":"","frefs":[]}'"'"' href="/a/mobile/friends/add_friend.php?id=759052697&amp;hf=browse&amp;fref=none&amp;gfid=AQDFXn-mOnFK2lik&amp;refid=46&amp;__xt__=12.%7B%22unit_id_click_type%22%3A%22inline_friend_request%22%2C%22click_type%22%3A%22result%22%2C%22module_id%22%3A0%2C%22result_id%22%3A759052697%2C%22sid%22%3A%22bbc94eb2ff0132a843b19f786901a7c3%22%2C%22module_role%22%3A%22NONE%22%2C%22unit_id%22%3A%22browse_rl%3A5a1bfc31f6c1becb1ff4f924119b38eb%3Ac1%22%2C%22browse_result_type%22%3A%22browse_type_user%22%2C%22unit_id_result_id%22%3A759052697%2C%22module_result_position%22%3A9%7D" role="button"><i class="touched_hide _4iru img sp_THrB2DDAoX4 sx_429dae"></i><i class="_4iru touched_show img sp_THrB2DDAoX4 sx_7e3f0d"></i></a></div><div class="_2so _2sq _2ss img _50ch _5d0w" data-animtype="3" data-sigil="m-loading-indicator-root load" id="u_0_4" style="display:none"><div class="_2sr" data-sigil="m-loading-indicator-animate"></div></div><a aria-label="Undo" class="touchable right _58x3" data-sigil="touchable check m-cancel-request" data-store='"'"'{"id":759052697,"ref_param":"unknown","floc":"","frefs":[]}'"'"' role="button" style="display:none"><i class="touched_hide _4irt img sp_THrB2DDAoX4 sx_644cf7"></i><i class="_4irt touched_show img sp_THrB2DDAoX4 sx_737f51"></i></a></div><iframe class="fbEmuTracking" frameborder="0" height="0" scrolling="no" src="/xti.php?xt=12.%7B%22unit_id_click_type%22%3A%22inline_friend_request%22%2C%22click_type%22%3A%22result%22%2C%22module_id%22%3A0%2C%22result_id%22%3A759052697%2C%22sid%22%3A%22bbc94eb2ff0132a843b19f786901a7c3%22%2C%22module_role%22%3A%22NONE%22%2C%22unit_id%22%3A%22browse_rl%3A5a1bfc31f6c1becb1ff4f924119b38eb%3Ac1%22%2C%22browse_result_type%22%3A%22browse_type_user%22%2C%22unit_id_result_id%22%3A759052697%2C%22module_result_position%22%3A9%7D" width="0"></iframe></div></div></div>' -f raw-html
 ```
+=> 
 
 ```
 [
@@ -80,22 +90,169 @@ When targeting multiple people it can be useful to quickly get some data about t
 ]
 ```
 
+### `url` : URL string
 
-### input = array of elements
+`./facebook-scrap.py profile "https://www.facebook.com/JohnJohn.Doe" -f url`
 
-`facebook-scrap.py user-search "search-results-array.json" -i json` => scrap user attributes from HTML block of a result from a search on Facebook :
+ *not implemented yet for search-url*
+ 
+## `-i` : input organization
+
+inline strings, JSON (inline or file), CSV (inline or file).
+
+### `inline` : inline : list of strings (from command line arguments or stin input) *(default)*
+
+`./facebook-scrap.py user-search "input-examples/John%20Smith-8.html" "input/John%20Smith-9.html" -i inline`
+
+### `json` : JSON file
+
+`./facebook-scrap.py user-search "search-results.json" -i json`
+
+### `inline-json` : JSON string
+
+`./facebook-scrap.py user-search "jsonstring" "input-examples/John%20Smith-9.html" -i inline-json`
+
+### `csv` : CSV file
+
+`./facebook-scrap.py user-search "search-results.csv" -i csv`
+
+### `inline-csv`  : CSV string
+
+`./facebook-scrap.py user-search "csvstring" -i inline-csv`
+
+
+## acceptable organization within JSON and CSV data
+
+array of elements or group of elements (ex : JSON array of dictionaries containing arrays of elements).
+
+### array of elements
+
+ex : JSON array
 
 ```
-{
-	"fb_customized_url": "JohnJohn.Doe",
-	"fb_name": "John-john Doe",
-	"fb_uid": "100000016191070",
-	"picture_url": "https://scontent-cdg2-1.xx.fbcdn.net/v/t1.0-1/cp0/e15/q65/c0.13.64.64/p64x64/1920462_779525028724696_446426524_n.jpg?efg=eyJpIjoibCJ9&oh=f0ae9a0e5e743da1c1326144343da3f8&oe=59E1F6F1"
-}
+[
+	"input-examples/John%20Doe-0.html",
+	"input-examples/John%20Doe-1.html",
+	"input-examples/John%20Doe-2.html",
+	"input-examples/John%20Doe-3.html",
+	"input-examples/John%20Doe-4.html",
+	"input-examples/John%20Doe-5.html",
+	"input-examples/John%20Doe-6.html",
+	"input-examples/John%20Doe-7.html",
+	"input-examples/John%20Doe-8.html",
+	"input-examples/John%20Doe-9.html",
+	"input-examples/John%20Doe-10.html",
+	"input-examples/John%20Smith-0.html",
+	"input-examples/John%20Smith-1.html",
+	"input-examples/John%20Smith-2.html",
+	"input-examples/John%20Smith-3.html",
+	"input-examples/John%20Smith-4.html",
+	"input-examples/John%20Smith-5.html",
+	"input-examples/John%20Smith-6.html",
+	"input-examples/John%20Smith-7.html",
+	"input-examples/John%20Smith-8.html",
+	"input-examples/John%20Smith-9.html"
+]
 ```
-### input = dict array of elements
 
-`facebook-scrap.py user-search "search-results-dicts.json" -i json --key="searched_user"` => scrap user attributes from HTML block of a result from a search on Facebook :
+ex : CSV "array" :
+
+```
+input-examples/John%20Doe-0.html
+input-examples/John%20Doe-1.html
+input-examples/John%20Doe-2.html
+input-examples/John%20Doe-3.html
+input-examples/John%20Doe-4.html
+input-examples/John%20Doe-5.html
+input-examples/John%20Doe-6.html
+input-examples/John%20Doe-7.html
+input-examples/John%20Doe-8.html
+input-examples/John%20Doe-9.html
+input-examples/John%20Doe-10.html
+input-examples/John%20Smith-0.html
+input-examples/John%20Smith-1.html
+input-examples/John%20Smith-2.html
+input-examples/John%20Smith-3.html
+input-examples/John%20Smith-4.html
+input-examples/John%20Smith-5.html
+input-examples/John%20Smith-6.html
+input-examples/John%20Smith-7.html
+input-examples/John%20Smith-8.html
+input-examples/John%20Smith-9.html
+```
+
+### array of dicts containing array of elements
+
+`./facebook-scrap.py user-search "search-group-results.json" -i json --group-name-key="searched_user" --group-array-key="matching_users_attributes"`
+
+ex : JSON array of dicts
+
+```
+[
+	{
+		"searched_user": "John Doe",
+		"matching_users_divs_filenames":
+		[
+			"input-examples/John%20Doe-0.html",
+			"input-examples/John%20Doe-1.html",
+			"input-examples/John%20Doe-2.html",
+			"input-examples/John%20Doe-3.html",
+			"input-examples/John%20Doe-4.html",
+			"input-examples/John%20Doe-5.html",
+			"input-examples/John%20Doe-6.html",
+			"input-examples/John%20Doe-7.html",
+			"input-examples/John%20Doe-8.html",
+			"input-examples/John%20Doe-9.html",
+			"input-examples/John%20Doe-10.html"
+		]
+	},
+	{
+		"searched_user": "John Smith",
+		"matching_users_divs_filenames":
+		[
+			"input-examples/John%20Smith-0.html",
+			"input-examples/John%20Smith-1.html",
+			"input-examples/John%20Smith-2.html",
+			"input-examples/John%20Smith-3.html",
+			"input-examples/John%20Smith-4.html",
+			"input-examples/John%20Smith-5.html",
+			"input-examples/John%20Smith-6.html",
+			"input-examples/John%20Smith-7.html",
+			"input-examples/John%20Smith-8.html",
+			"input-examples/John%20Smith-9.html"
+		]
+	}
+]
+```
+
+ex : CSV grouped data
+
+```
+searched_user,matching_users_divs_filenames
+John Doe,input-examples/John%20Doe-0.html
+John Doe,input-examples/John%20Doe-1.html
+John Doe,input-examples/John%20Doe-2.html
+John Doe,input-examples/John%20Doe-3.html
+John Doe,input-examples/John%20Doe-4.html
+John Doe,input-examples/John%20Doe-5.html
+John Doe,input-examples/John%20Doe-6.html
+John Doe,input-examples/John%20Doe-7.html
+John Doe,input-examples/John%20Doe-8.html
+John Doe,input-examples/John%20Doe-9.html
+John Doe,input-examples/John%20Doe-10.html
+John Smith,input-examples/John%20Smith-0.html
+John Smith,input-examples/John%20Smith-1.html
+John Smith,input-examples/John%20Smith-2.html
+John Smith,input-examples/John%20Smith-3.html
+John Smith,input-examples/John%20Smith-4.html
+John Smith,input-examples/John%20Smith-5.html
+John Smith,input-examples/John%20Smith-6.html
+John Smith,input-examples/John%20Smith-7.html
+John Smith,input-examples/John%20Smith-8.html
+John Smith,input-examples/John%20Smith-9.html
+```
+
+In this case **facebook-scraper** output will be grouped as well, ex :
 
 ```
 "searched_user": "John Smith",
@@ -131,11 +288,25 @@ When targeting multiple people it can be useful to quickly get some data about t
 ]
 ```
 
-## Specify output (JSON to console, JSON file or CSV file)
+## `-o` : output 
 
-- `facebook-scrap.py user-search "input/John%20Smith-8.html" "input/John%20Smith-9.html" --output=stdout` or `-o stdout` => serialized array of dicts to stdout (default)
-- `facebook-scrap.py user-search "input/John%20Smith-8.html" "input/John%20Smith-9.html" --output=csv` or `-o csv` => save as a CSV file *not implemented yet*
-- `facebook-scrap.py user-search "input/John%20Smith-8.html" "input/John%20Smith-9.html" --output=json` or `-o json` => save as a JSON file
+JSON to console, JSON file or CSV file.
+
+### `raw` : serialized array of dicts to stdout *default*
+
+`./facebook-scrap.py user-search "input-examples/John%20Smith-8.html" "input-examples/John%20Smith-9.html" --output=stdout` or `-o stdout`
+
+### `pretty` : indented array
+
+`./facebook-scrap.py user-search "input-examples/John%20Smith-8.html" "input-examples/John%20Smith-9.html" --output=pretty` or `-o pretty`
+
+### `json` : save as JSON file
+
+`./facebook-scrap.py user-search "input-examples/John%20Smith-8.html" "input-examples/John%20Smith-9.html" --output=json` or `-o json`
+
+### `csv` : save as CSV file *not implemented yet*
+
+`./facebook-scrap.py user-search "input-examples/John%20Smith-8.html" "input-examples/John%20Smith-9.html" --output=csv` or `-o csv`
 
 # Code
 

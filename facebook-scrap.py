@@ -62,11 +62,11 @@ if __name__ == '__main__':
 	acceptableNonArgOptions = [ ["v", "verbose"], ["h", "help"] ]
 	inputOptionsDict = {
 		"option_name" : ["i", "input"], 
-		"acceptable_values" : ["inline","inline_json","json","inline_csv","csv"] 
+		"acceptable_values" : ["inline","inline-json","json","inline-csv","csv"] 
 	}
 	formatOptionsDict = {
 		"option_name" : ["f", "format"], 
-		"acceptable_values" : ["url","inline_html","html"] 
+		"acceptable_values" : ["url","raw-html","html-file"] 
 	}
 	outputOptionsDict = {
 		"option_name" : ["o", "output"], 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 	
 	# 2. Grab option values or use default if none provided
 	inputType = optionsDict.get("input", "inline")
-	inputFormat = optionsDict.get("format", "html")
+	inputFormat = optionsDict.get("format", "html-file")
 	outputFormat = optionsDict.get("output", "raw")
 	
 	# 3. Get input data (from stdin or command line arguments)
@@ -90,8 +90,8 @@ if __name__ == '__main__':
 		results = []
 		# Single dim array
 		if array_dim == 1:
-			if get_array_type(inputData) != str:
-				assert False, "invalid data of type" + get_array_type(inputData) + " contained in array : " + str(inputData)
+			if not is_string(get_array_type(inputData)):
+				assert False, "invalid data of type" + str(get_array_type(inputData)) + " contained in array : " + str(inputData)
 			verbose_print("loaded " + str(len(inputData)) + " data blocks")
 			results = super_map(inputData, scrap_user_attributes)
 		# Doule-dim array - map
