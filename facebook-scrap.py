@@ -90,6 +90,7 @@ if __name__ == '__main__':
 		results = []
 		# Single dim array
 		if array_dim == 1:
+			# Check if input array contains only strings
 			if not is_string(get_array_type(inputData)):
 				assert False, "invalid data of type" + str(get_array_type(inputData)) + " contained in array : " + str(inputData)
 			verbose_print("loaded " + str(len(inputData)) + " data blocks")
@@ -99,10 +100,12 @@ if __name__ == '__main__':
 			# Check if number of grouped data blocks matches the number of group keys
 			if len(inputData) != len(groupKeys) > 0:
 				assert False, "mismatch between number of grouped data blocks matches : " + str(len(inputData)) + " and number of group keys : " + str(len(groupKeys))
-			if get_array_type(inputData[0]) != str:
-				assert False, "invalid data of type" + get_array_type(inputData[0]) +"contained in array : " + str(inputData)
-				# TODO : check all sub-arrays
-			# results = super_map(inputData, lambda x : map(scrap_user_attributes, x))
+			# Check if input subarrays contain only strings
+			subarray_types = super_map(inputData, get_array_type)
+			subarray_check = super_map(subarray_types, is_string)
+			if False in subarray_check:
+				errorIndex = subarray_check.index(False)
+				assert False, "invalid data of type" + subarray_types[errorIndex] + " contained in subarray : " + str(inputData[errorIndex])
 			results = super_submap(inputData, scrap_user_attributes)
 		else:
 			assert False, "unsupported array dimension : " + str(array_dim)
